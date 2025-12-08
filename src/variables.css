@@ -1,0 +1,19 @@
+:root {
+    /* Colors */
+    --primary: #121b30;
+    --secondary: #3b82f5;
+    --accent: #ff8d28;
+    --dark: #242526;
+    --dark-lite: #7c7c7d;
+    --light: #f4f7fb;
+    --background: #f7f9fa;
+    --card-background: #ffffff;
+    --card-border: #f4f7fb;
+    --text-primary: #0f1729;
+    --text-secondary: #65758b;
+    --text-button: #ffffff;
+
+    /* Gradients */
+    --background-gradient: linear-gradient(to bottom, #0f1729 0%, #141e38 100%);
+}
+
