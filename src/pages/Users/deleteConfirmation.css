@@ -1,0 +1,130 @@
+@import '../../variables.css';
+
+.delete-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 2rem;
+}
+
+.delete-modal-content {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.delete-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.delete-modal-header h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.delete-modal-close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.delete-modal-close-button:hover {
+    background-color: var(--light);
+    color: var(--text-primary);
+}
+
+.delete-modal-body {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.delete-modal-body p {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.delete-modal-user-name {
+    margin-top: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.delete-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.delete-modal-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.delete-modal-button-cancel {
+    background-color: var(--light);
+    color: var(--text-primary);
+}
+
+.delete-modal-button-cancel:hover {
+    background-color: var(--card-border);
+    transform: translateY(-1px);
+}
+
+.delete-modal-button-confirm {
+    background-color: #ef4444;
+    color: var(--text-white);
+}
+
+.delete-modal-button-confirm:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.delete-modal-button-confirm:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+

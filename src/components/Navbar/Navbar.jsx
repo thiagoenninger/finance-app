@@ -1,4 +1,5 @@
 import React from 'react'
+import { NavLink } from 'react-router-dom'
 import './style.css'
 
 import {
@@ -28,17 +29,23 @@ function Navbar() {
     <div className='navbar-container'>
         <div className="navbar-header">
             <div className="navbar-header-icon">
-              <FolderKanban size={28}/>
+              <FolderKanban size={24}/>
             </div>
             <h1>GestPro</h1>
         </div>
 
         <div className="navbar-content">
             {SidebarLinks.map(({to, icon, label}) => (
-              <button key={to} className="navbar-link" type="button">
-                {React.createElement(icon, {size: 20})}
+              <NavLink 
+                key={to} 
+                to={to} 
+                className={({ isActive }) => 
+                  `navbar-link ${isActive ? 'navbar-link-active' : ''}`
+                }
+              >
+                {React.createElement(icon, {size: 16})}
                 <span>{label}</span>
-              </button>
+              </NavLink>
             ))}
         </div>
 
