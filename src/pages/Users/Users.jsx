@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
+import DeleteConfirmation from '../../components/DeleteConfirmation/DeleteConfirmation'
 import NewUser from './NewUser'
-import DeleteConfirmation from './DeleteConfirmation'
 import './style.css'
 
 import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
 
 function Users() {
-  // Current logged-in user role - in a real app, this would come from auth context
-  const currentUserRole = 'Administrador'
-
   const [users, setUsers] = useState([])
 
   const [loading, setLoading] = useState(false)
@@ -99,11 +96,6 @@ function Users() {
   }
 
   const handleEditUser = (userId) => {
-    // Only Administrador can edit users
-    if (currentUserRole !== 'Administrador') {
-      return
-    }
-    
     const user = users.find(u => u.id === userId)
     if (user) {
       setEditingUser(user)
@@ -112,11 +104,6 @@ function Users() {
   }
 
   const handleDeleteUser = (userId) => {
-    // Only Administrador can delete users
-    if (currentUserRole !== 'Administrador') {
-      return
-    }
-    
     const user = users.find(u => u.id === userId)
     setUserToDelete({ id: userId, nome: user?.nome || '' })
     setIsDeleteModalOpen(true)
@@ -149,9 +136,6 @@ function Users() {
     setIsDeleteModalOpen(false)
     setUserToDelete(null)
   }
-
-  const canDeleteUser = currentUserRole === 'Administrador'
-  const canEditUser = currentUserRole === 'Administrador'
 
   useEffect(() => {
     fetchUsers()
@@ -220,27 +204,23 @@ function Users() {
                   </td>
                   <td>
                     <div className="actions-buttons">
-                      {canEditUser && (
-                        <button 
-                          className="action-button action-button-edit" 
-                          onClick={() => handleEditUser(user.id)}
-                          type="button"
-                          disabled={loading}
-                          aria-label="Editar usuário"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                      )}
-                      {canDeleteUser && (
-                        <button 
-                          className="action-button action-button-delete" 
-                          onClick={() => handleDeleteUser(user.id)}
-                          type="button"
-                          aria-label="Excluir usuário"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      )}
+                      <button 
+                        className="action-button action-button-edit" 
+                        onClick={() => handleEditUser(user.id)}
+                        type="button"
+                        disabled={loading}
+                        aria-label="Editar usuário"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button 
+                        className="action-button action-button-delete" 
+                        onClick={() => handleDeleteUser(user.id)}
+                        type="button"
+                        aria-label="Excluir usuário"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -262,7 +242,8 @@ function Users() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        userName={userToDelete?.nome}
+        itemName={userToDelete?.nome}
+        itemType="usuário"
       />
     </>
   )

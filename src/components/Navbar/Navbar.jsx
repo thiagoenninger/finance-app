@@ -18,8 +18,8 @@ const SidebarLinks = [
   {to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard'},
   {to: '/users', icon: Users, label: 'Usuários'},
   {to: '/proponentes', icon: Building2, label: 'Proponentes'},
-  {to: '/projetos', icon: FolderOpenDot, label: 'Projetos'},
   {to: '/fornecedores', icon: Truck, label: 'Fornecedores'},
+  {to: '/projetos', icon: FolderOpenDot, label: 'Projetos'},
   {to: '/pagamentos', icon: CreditCard, label: 'Pagamentos'},
   {to: '/contas-diretas', icon: Receipt, label: 'Contas Diretas'},
 ]

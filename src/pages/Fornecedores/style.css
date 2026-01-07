@@ -1,0 +1,156 @@
+@import '../../variables.css';
+
+.fornecedores-container {
+    width: 100%;
+    padding: 2rem;
+    background-color: var(--background);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.fornecedores-header {
+    margin-bottom: 2rem;
+}
+
+.fornecedores-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.fornecedores-header-text h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.fornecedores-header-text p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* Table Section */
+.fornecedores-table-container {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+}
+
+.fornecedores-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fornecedores-table thead {
+    background-color: var(--light);
+    border: 1px solid var(--card-border);
+}
+
+.fornecedores-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.fornecedores-table tbody {
+    border: 1px solid var(--card-border);
+}
+
+.fornecedores-table tbody tr {
+    border-bottom: 1px solid var(--card-border);
+    transition: background-color 0.2s ease;
+}
+
+.fornecedores-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.fornecedores-table tbody tr:hover {
+    background-color: var(--light);
+}
+
+.fornecedores-table td {
+    padding: 1rem 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 400;
+}
+
+/* Documento Type */
+.documento-type {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--light);
+    color: var(--text-secondary);
+}
+
+/* Documento Value */
+.documento-value {
+    font-family: 'Courier New', monospace;
+    color: var(--text-primary);
+}
+
+/* Pagamento Type */
+.pagamento-type {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-white);
+}
+
+.pagamento-type-pix {
+    background-color: var(--secondary);
+}
+
+.pagamento-type-ted {
+    background-color: var(--tertiary);
+}
+
+/* Actions Buttons */
+.actions-buttons {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.action-button-edit {
+    color: var(--text-primary);
+}
+
+.action-button-edit:hover {
+    background-color: var(--light);
+}
+
+.action-button-delete {
+    color: #ef4444;
+}
+
+.action-button-delete:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+

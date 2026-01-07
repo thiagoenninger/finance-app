@@ -1,8 +1,8 @@
 import React from 'react'
 import { X } from 'lucide-react'
-import './deleteConfirmation.css'
+import './style.css'
 
-function DeleteConfirmation({ isOpen, onClose, onConfirm, userName }) {
+function DeleteConfirmation({ isOpen, onClose, onConfirm, itemName, itemType = 'item' }) {
   if (!isOpen) return null
 
   return (
@@ -21,8 +21,8 @@ function DeleteConfirmation({ isOpen, onClose, onConfirm, userName }) {
         </div>
 
         <div className="delete-modal-body">
-          <p>Você quer realmente deletar o seguinte usuário?</p>
-          {userName && <p className="delete-modal-user-name">{userName}</p>}
+          <p>Você quer realmente deletar o seguinte {itemType}?</p>
+          {itemName && <p className="delete-modal-user-name">{itemName}</p>}
         </div>
 
         <div className="delete-modal-actions">
