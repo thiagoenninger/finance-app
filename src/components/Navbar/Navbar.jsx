@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import './style.css'
 
 import {
@@ -14,6 +14,8 @@ import {
   FileText,
 } from 'lucide-react'
 
+import { useAuth } from '../../context/AuthContext'
+
 const SidebarLinks = [
   {to: '/users', icon: Users, label: 'Usuários'},
   {to: '/proponentes', icon: Building2, label: 'Proponentes'},
@@ -25,6 +27,16 @@ const SidebarLinks = [
 ]
 
 function Navbar() {
+  const {user, logout} = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login', {replace: true})
+  }
+
+  const displayName = user?.displayName || user?.email || 'Usuário'
+
   return (
     <div className='navbar-container'>
         <div className="navbar-header">
@@ -51,9 +63,9 @@ function Navbar() {
 
         <div className="navbar-footer">
           <div className="navbar-footer-user">
-            <p>Admin</p>
+            <p title={displayName}>{displayName}</p>
           </div>
-            <button className="navbar-link" type="button">
+            <button className="navbar-link" type="button" onClick={handleLogout}>
               <LogOut size={20}/>
               <span>Sair</span>
             </button>

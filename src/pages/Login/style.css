@@ -78,7 +78,7 @@
     background: #fff;
     border-radius: 14px;
     padding: 2rem 2rem 1.75rem;
-    box-shadow: 0 14px 40px rgba(15, 23, 41, 0.08)
+    box-shadow: 0 14px 40px rgba(15, 23, 41, 0.08);
 }
 
 .login-right-title{
@@ -93,6 +93,7 @@
     font-size: 0.95rem;
     color: var(--text-secondary);
     line-height: 1.4;
+    margin-bottom: 3rem;
 }
 
 .login-right-field {
@@ -163,4 +164,35 @@
 
 .login-right-button:hover {
    filter: brightness(0.95);
+}
+
+/*Error Message*/
+.login-error{
+    display:flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    color: #dc2626;
+    font-size: 0.875rem;
+}
+
+/* Loading Spinner */
+.login-spinner {
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto;
+    display: block;
+}
+
+@keyframes spin {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+
+.login-right-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }

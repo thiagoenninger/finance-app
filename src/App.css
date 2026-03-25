@@ -12,3 +12,7 @@
     width: calc(100% - 255px);
 }
 
+.app-main--full {
+    margin-left: 0;
+    width: 100%;
+}
