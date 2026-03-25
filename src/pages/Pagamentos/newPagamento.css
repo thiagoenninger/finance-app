@@ -23,6 +23,12 @@
     animation: modalFadeIn 0.2s ease-out;
 }
 
+.modal-content-large {
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
 @keyframes modalFadeIn {
     from {
         opacity: 0;
@@ -106,6 +112,12 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 245, 0.1);
 }
 
+.readonly-input {
+    background-color: var(--light);
+    cursor: not-allowed;
+    color: var(--text-secondary);
+}
+
 .form-field select {
     cursor: pointer;
     appearance: none;
@@ -121,6 +133,104 @@
     margin-top: -0.25rem;
 }
 
+.form-error {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: -0.25rem;
+    display: block;
+}
+
+/* Fields Row */
+.fields-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.fields-row .form-field {
+    flex: 1;
+}
+
+/* Saldo Disponivel Box */
+.saldo-disponivel-box {
+    margin-top: 0.5rem;
+    padding: 1rem;
+    background-color: var(--light);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.saldo-label {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.saldo-value {
+    color: var(--secondary);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+/* Date Input Wrapper */
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-input-wrapper input[type="date"] {
+    padding-right: 2.5rem;
+}
+
+.date-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.calendar-icon {
+    position: absolute;
+    right: 1rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+/* File Input */
+.file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px dashed var(--card-border);
+    border-radius: 8px;
+    background-color: var(--light);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+    border-color: var(--secondary);
+    background-color: rgba(59, 130, 245, 0.05);
+}
+
+/* Modal Actions */
 .modal-actions {
     display: flex;
     justify-content: flex-end;
@@ -140,12 +250,17 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+.modal-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .modal-button-cancel {
     background-color: var(--light);
     color: var(--text-primary);
 }
 
-.modal-button-cancel:hover {
+.modal-button-cancel:hover:not(:disabled) {
     background-color: var(--card-border);
 }
 
@@ -154,14 +269,13 @@
     color: var(--text-white);
 }
 
-.modal-button-submit:hover {
+.modal-button-submit:hover:not(:disabled) {
     background-color: color-mix(in srgb, var(--secondary) 90%, transparent);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 245, 0.25);
 }
 
-.modal-button-submit:active {
+.modal-button-submit:active:not(:disabled) {
     transform: translateY(0);
     box-shadow: none;
 }
-

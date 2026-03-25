@@ -1,0 +1,214 @@
+@import '../../variables.css';
+
+.relatorios-page {
+  width: 100%;
+  padding: 2rem;
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+.relatorios-page h1 {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.relatorios-page p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Filter Section */
+.relatorios-filters {
+  margin: 2rem 0;
+}
+
+.relatorios-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.relatorios-filters-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.relatorios-filters-field label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.relatorios-filters-field input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  min-width: 200px;
+}
+
+.relatorios-filter-clear {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--light);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.relatorios-filter-generate {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--primary, #2563eb);
+  border-radius: 8px;
+  background-color: var(--primary, #2563eb);
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.relatorios-filters-right-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-left: auto; /* alinha o bloco de ações no canto direito */
+  justify-content: flex-end;
+}
+
+.relatorios-filter-generate:hover:not(:disabled) {
+  background-color: var(--accent);
+  border:none;
+}
+
+.relatorios-filter-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.relatorios-filter-save {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.relatorios-filter-save:hover:not(:disabled) {
+  background-color: var(--secondary);
+  color: var(--text-white);
+}
+.relatorios-filter-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.relatorios-filter-clear:hover:not(:disabled) {
+  background-color: var(--secondary);
+}
+
+.relatorios-filter-clear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Report Section */
+.relatorios-report-error {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #fee;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.relatorios-report-table-container {
+  margin-top: 1.5rem;
+}
+
+.relatorios-report-loading {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.relatorios-report-empty {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--light);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+}
+
+.relatorios-report-table-wrapper {
+  overflow-x: auto;
+}
+
+.relatorios-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+}
+
+.relatorios-report-table th,
+.relatorios-report-table td {
+  padding: 0.75rem 0.75rem;
+  border-bottom: 1px solid var(--card-border);
+  vertical-align: middle;
+  text-align: left;
+}
+
+.relatorios-report-table th {
+  background-color: var(--light);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.relatorios-report-table td {
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.relatorios-report-table tbody tr:hover td {
+  background-color: #f9fafb;
+}
+
+/* Floating Action Button (canto inferior direito) */
+.relatorios-clear-report-fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1000;
+
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.relatorios-clear-report-fab:hover:not(:disabled) {
+  background-color: var(--secondary);
+  color: var(--text-white);
+}
+
+.relatorios-clear-report-fab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

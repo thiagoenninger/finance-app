@@ -1,0 +1,336 @@
+@import '../../variables.css';
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 2rem;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.modal-overlay::-webkit-scrollbar {
+    display: none;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.2s ease-out;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.modal-content::-webkit-scrollbar {
+    display: none;
+}
+
+.modal-content-large {
+    max-width: 600px;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.modal-header h2 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.modal-close-button:hover {
+    background-color: var(--light);
+    color: var(--text-primary);
+}
+
+.modal-form {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background-color: var(--card-background);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 4rem;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 245, 0.1);
+}
+
+.form-field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2365758b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: -0.25rem;
+}
+
+.form-error {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: -0.25rem;
+    display: block;
+}
+
+/* Fields Row */
+.fields-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.fields-row .form-field {
+    flex: 1;
+}
+
+/* Date Input Wrapper */
+.date-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.date-input-wrapper input[type="date"] {
+    padding-right: 2.5rem;
+}
+
+.date-input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.calendar-icon {
+    position: absolute;
+    right: 1rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+/* TED Fields Row */
+.ted-fields-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.ted-fields-row .form-field {
+    flex: 1;
+}
+
+.ted-fields-row input::placeholder {
+    font-size: 0.75rem;
+}
+
+/* File Input */
+.file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px dashed var(--card-border);
+    border-radius: 8px;
+    background-color: var(--light);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+    border-color: var(--secondary);
+    background-color: rgba(59, 130, 245, 0.05);
+}
+
+/* Conta recorrente */
+.form-field.conta-recorrente-section {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.form-field.conta-recorrente-section .conta-recorrente-btn {
+    flex: 0 0 50%;
+    max-width: 50%;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background-color: var(--card-background);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.form-field.conta-recorrente-section .conta-recorrente-btn:hover {
+    background-color: var(--light);
+}
+
+.form-field.conta-recorrente-section .conta-recorrente-btn.active {
+    background-color: var(--primary, #2563eb);
+    color: #fff;
+    border-color: var(--primary, #2563eb);
+}
+
+.form-field.conta-recorrente-section .conta-recorrente-select-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    flex: 0 0 140px;
+    max-width: 140px;
+}
+
+.conta-recorrente-select-wrap label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.conta-recorrente-select-wrap select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    font-size: 0.9375rem;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+}
+
+.modal-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.modal-button-cancel {
+    background-color: var(--light);
+    color: var(--text-primary);
+}
+
+.modal-button-cancel:hover {
+    background-color: var(--card-border);
+}
+
+.modal-button-submit {
+    background-color: var(--secondary);
+    color: var(--text-white);
+}
+
+.modal-button-submit:hover {
+    background-color: color-mix(in srgb, var(--secondary) 90%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 245, 0.25);
+}
+
+.modal-button-submit:active {
+    transform: translateY(0);
+    box-shadow: none;
+}

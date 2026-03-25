@@ -1,0 +1,364 @@
+@import '../../variables.css';
+
+.project-container {
+    width: 100%;
+    padding: 2rem;
+    background-color: var(--background);
+    min-height: 100vh;
+}
+
+/* Header Section */
+.project-header {
+    margin-bottom: 2rem;
+}
+
+.project-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.project-header-content h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.project-back-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--card-border);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.project-back-button:hover {
+    background-color: var(--secondary);
+    color: var(--text-white);
+    transform: translateY(-1px);
+}
+
+.project-back-button:active {
+    transform: translateY(0);
+}
+
+/* Form Section */
+.project-form {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-field label {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    background-color: var(--card-background);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 245, 0.1);
+}
+
+.form-field select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2365758b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: -0.25rem;
+}
+
+.form-error {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: -0.25rem;
+    display: block;
+}
+
+/* Fields Row */
+.fields-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.fields-row .form-field {
+    flex: 1;
+}
+
+/* File Input */
+.file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 2px dashed var(--card-border);
+    border-radius: 8px;
+    background-color: var(--light);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+    border-color: var(--secondary);
+    background-color: rgba(59, 130, 245, 0.05);
+}
+
+/* Add Rubrica Button */
+.add-rubrica-button {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+    border: 2px dashed var(--card-border);
+    border-radius: 8px;
+    background-color: var(--light);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.add-rubrica-button:hover {
+    border-color: var(--secondary);
+    background-color: rgba(59, 130, 245, 0.05);
+    color: var(--secondary);
+}
+
+/* Manual Rubrica Form */
+.manual-rubrica-form {
+    padding: 1.5rem;
+    background-color: var(--light);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    margin-top: 0.5rem;
+}
+
+.manual-rubrica-fields {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.manual-rubrica-fields .form-field {
+    flex: 1;
+}
+
+.manual-rubrica-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+/* Rubricas Section */
+.rubricas-section {
+    margin-top: 1rem;
+    padding: 1.5rem;
+    background-color: var(--light);
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+}
+
+.rubricas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.rubricas-header h3 {
+    color: var(--text-primary);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.valor-total {
+    color: var(--secondary);
+    font-size: 1rem;
+}
+
+.rubricas-table-wrapper {
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    background-color: var(--card-background);
+}
+
+.rubricas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.rubricas-table thead {
+    position: sticky;
+    top: 0;
+    background-color: var(--light);
+    z-index: 10;
+}
+
+.rubricas-table th {
+    padding: 1rem;
+    text-align: left;
+    color: var(--text-primary);
+    font-weight: 600;
+    border-bottom: 2px solid var(--card-border);
+    font-size: 0.875rem;
+}
+
+.rubricas-table th:last-child {
+    width: 80px;
+    text-align: center;
+}
+
+.rubricas-table td {
+    padding: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--card-border);
+}
+
+.rubricas-table td:last-child {
+    text-align: center;
+}
+
+.rubricas-table tbody tr:hover {
+    background-color: var(--light);
+}
+
+.rubricas-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.rubrica-delete-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    padding: 0;
+}
+
+.rubrica-delete-button:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    transform: translateY(-1px);
+}
+
+.rubrica-delete-button:active {
+    transform: translateY(0);
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+/* Actions */
+.project-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--card-border);
+}
+
+.project-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.project-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.project-button-cancel {
+    background-color: var(--light);
+    color: var(--text-primary);
+}
+
+.project-button-cancel:hover:not(:disabled) {
+    background-color: var(--card-border);
+}
+
+.project-button-submit {
+    background-color: var(--secondary);
+    color: var(--text-white);
+}
+
+.project-button-submit:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--secondary) 90%, transparent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 245, 0.25);
+}
+
+.project-button-submit:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+}

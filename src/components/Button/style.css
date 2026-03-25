@@ -3,19 +3,19 @@
 .app-button {
     min-width: 160px;
     height: 52px;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
 
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     
-    border: 1px solid #2762C2;
+    border: none;
     border-radius: 12px;
-    background-color: var(--secondary);
-    color: var(--text-button);
-    font-weight: 500;
-    font-size: 1rem;
+    background-color: var(--card-border);
+    color: var(--text-primary);
+    font-weight: 400;
+    font-size: 0.875rem;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     white-space: nowrap;
@@ -24,7 +24,8 @@
 .app-button:hover {
     transform: translateY(-1px);
     box-shadow: 0 8px 20px rgba(59, 130, 245, 0.25);
-    background-color: color-mix(in srgb, var(--secondary) 90%, transparent);
+    background-color: var(--secondary);
+    color: var(--text-white);
 }
 
 .app-button:active {

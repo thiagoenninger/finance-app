@@ -5,7 +5,7 @@ import './style.css'
 function Button({label, onClick, type = 'button'}) {
   return (
     <button type={type} className="app-button" onClick={onClick}>
-      <Plus size={24} />
+      <Plus size={18} />
       <span>{label}</span>
     </button>
   )

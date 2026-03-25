@@ -1,0 +1,55 @@
+@import '../../variables.css';
+
+.date-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.date-filter-mode {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.date-filter-mode-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.date-filter-mode-btn:hover {
+  background-color: var(--light);
+}
+
+.date-filter-mode-btn.active {
+  background-color: var(--primary, #2563eb);
+  color: #fff;
+  border-color: var(--primary, #2563eb);
+}
+
+.date-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.date-filter-field label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.date-filter-field input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  min-width: 200px;
+}
