@@ -166,6 +166,12 @@
    filter: brightness(0.95);
 }
 
+.login-password-toggle {
+    border: none;
+    background-color: #fff;
+    margin-left: 1rem;
+}
+
 /*Error Message*/
 .login-error{
     display:flex;
@@ -195,4 +201,145 @@
 .login-right-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.login-forgot-wrap {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.login-forgot-link{
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 500
+}
+
+.login-forgot-link:hover {
+    color: #F03C4B;
+    font-weight: 700;
+}
+
+
+/* ── Modal de recuperação de senha ─────────────────── */
+ 
+.reset-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 41, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+    backdrop-filter: blur(2px);
+}
+ 
+.reset-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(15, 23, 41, 0.18);
+    animation: modal-in 0.18s ease;
+}
+ 
+@keyframes modal-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+ 
+.reset-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+ 
+.reset-modal-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+ 
+.reset-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+ 
+.reset-modal-close:hover {
+    color: var(--text-primary);
+    background: var(--light);
+}
+ 
+.reset-modal-text {
+    margin: 0 0 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+ 
+.reset-modal-button {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #2b6ff6 0%, #2aa1a6 100%);
+    color: var(--text-white);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+    transition: filter 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+ 
+.reset-modal-button:hover {
+    filter: brightness(0.95);
+}
+ 
+.reset-modal-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+ 
+/* ── Estado de sucesso no modal ────────────────────── */
+ 
+.reset-success {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+ 
+.reset-success p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+ 
+.reset-success-sub {
+    font-weight: 400 !important;
+    color: var(--text-secondary) !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5;
 }

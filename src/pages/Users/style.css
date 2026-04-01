@@ -84,3 +84,130 @@
     font-weight: 400;
 }
 
+/* Error Message */
+.users-table-message {
+    text-align: center;
+    padding: 1.5rem;
+    color: #6b7280;
+  }
+  .users-error {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+    border-radius: 10px;
+    font-size: 0.875rem;
+  }
+
+  .users-error-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .users-retry-button {
+    border: none;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 8px;
+    padding: 0.45rem 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .users-categoria-fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .users-categoria-legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .users-categoria-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  
+  .users-categoria-select {
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: #fff;
+    max-width: 200px;
+  }
+
+ 
+/* Inline edit input */
+.users-name-input {
+    height: 34px;
+    border: 1px solid var(--secondary);
+    border-radius: 8px;
+    padding: 0 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+    max-width: 260px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 245, 0.12);
+}
+ 
+.users-no-name {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+ 
+.actions-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+ 
+.action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+ 
+.action-button-edit {
+    background-color: #eff6ff;
+    color: var(--secondary);
+}
+ 
+.action-button-edit:hover {
+    background-color: #dbeafe;
+}
+ 
+.action-button-delete {
+    background-color: #fef2f2;
+    color: #ef4444;
+}
+ 
+.action-button-delete:hover {
+    background-color: #fee2e2;
+}

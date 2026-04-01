@@ -1,34 +1,77 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import {auth} from "../firebase/firebase"
+import { createContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth, db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import {
+  loginWithEmail,
+  logoutCurrentUser,
+  ensureUsuarioDocument,
+} from "../services/authServices";
+import {
+  CATEGORIA_SIMPLES,
+  CATEGORIA_COMPLETO,
+  normalizeCategoria,
+} from "../constants/userCategories";
 
-const AuthContext = createContext(null)
+export const AuthContext = createContext(null);
 
-export function AuthProvider({children}) {
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(undefined);
+  const [perfil, setPerfil] = useState(undefined);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-            setUser(firebaseUser)
-            setLoading(false)
-        })
-        return unsubscribe
-    }, [])
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setUser(null);
+        setPerfil(null);
+        return;
+      }
 
-    const login = (email, password) => signInWithEmailAndPassword(auth, email, password)
+      try {
+        await ensureUsuarioDocument(firebaseUser);
 
-    const logout = () => signOut(auth)
+        const snap = await getDoc(doc(db, "usuarios", firebaseUser.uid));
+        const data = snap.exists() ? snap.data() : {};
 
-    return (
-        <AuthContext.Provider value={{user, loading, login, logout}}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+        setPerfil({
+          nome: data.nome || "",
+          categoria: normalizeCategoria(data.categoria),
+        });
+      } catch (error) {
+        console.error("Auth bootstrap error: ", error);
+        setPerfil({
+          nome: "",
+          categoria: CATEGORIA_SIMPLES,
+        });
+      } finally {
+        setUser(firebaseUser);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
-export function useAuth() {
-    const ctx = useContext(AuthContext)
-    if (!ctx) throw new Error('useAtuh deve ser usado dentro de <AuthProvider>')
-    return ctx
+  const login = (email, password) => loginWithEmail(email, password);
+  const logout = () => logoutCurrentUser();
+
+  const loading = user === undefined || (user && perfil === undefined);
+  const categoria = perfil?.categoria || null;
+  const isSimples = categoria === CATEGORIA_SIMPLES;
+  const isCompleto = categoria === CATEGORIA_COMPLETO;
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        perfil,
+        categoria,
+        isSimples,
+        isCompleto,
+        loading,
+        login,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
