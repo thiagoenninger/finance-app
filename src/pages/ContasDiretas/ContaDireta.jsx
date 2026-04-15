@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, FileText, Download } from 'lucide-react'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL, formatDateBR } from '../../utils/format'
 import './ContaDireta.css'
 
 export default function ContaDireta() {
@@ -13,6 +14,8 @@ export default function ContaDireta() {
   const [error, setError] = useState(null)
   const [pdfLoading, setPdfLoading] = useState(true)
   const [pdfError, setPdfError] = useState(false)
+  const mountedRef = useRef(true)
+  useEffect(() => () => { mountedRef.current = false }, [])
 
   useEffect(() => {
     fetchConta()
@@ -51,32 +54,6 @@ export default function ContaDireta() {
       console.error('Error fetching conta direta:', err)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'R$ 0,00'
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    try {
-      if (typeof dateString === 'string' && dateString.includes('-')) {
-        const [year, month, day] = dateString.split('-')
-        return `${day}/${month}/${year}`
-      }
-      const date = dateString instanceof Date ? dateString : new Date(dateString)
-      if (isNaN(date.getTime())) {
-        return dateString
-      }
-      return date.toLocaleDateString('pt-BR')
-    } catch {
-      return dateString
     }
   }
 
@@ -164,12 +141,12 @@ export default function ContaDireta() {
 
             <div className="info-item">
               <label>Valor</label>
-              <p className="info-value">{formatCurrency(conta?.valor)}</p>
+              <p className="info-value">{formatCurrencyBRL(conta?.valor)}</p>
             </div>
 
             <div className="info-item">
               <label>Data de Pagamento</label>
-              <p>{formatDate(conta?.dataPagamento)}</p>
+              <p>{formatDateBR(conta?.dataPagamento)}</p>
             </div>
 
             <div className="info-item">
@@ -260,11 +237,8 @@ export default function ContaDireta() {
                 title="Preview do Boleto"
                 className={`boleto-preview-iframe ${!pdfLoading ? 'loaded' : ''}`}
                 type="application/pdf"
-                onLoad={() => setPdfLoading(false)}
-                onError={() => {
-                  setPdfLoading(false)
-                  setPdfError(true)
-                }}
+                onLoad={() => { if (mountedRef.current) setPdfLoading(false) }}
+                onError={() => { if (mountedRef.current) { setPdfLoading(false); setPdfError(true) } }}
               />
             </div>
           </div>

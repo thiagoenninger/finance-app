@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../../context/useAuth";
 import { Pencil, Check, X } from "lucide-react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
@@ -10,6 +11,7 @@ import {
 import "./style.css";
 
 export default function Users() {
+  const { user } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -56,16 +58,10 @@ export default function Users() {
       setError(validationMessage);
       return;
     }
-
-    const nomeLimpo = editingNome.trim();
-    if (!nomeLimpo) {
-      setError("O nome não pode ficar vazio.");
-      return;
-    }
-
+    const nomeLimpo = editingNome.trim()
     setSavingId(uid);
     setError("");
-
+    
     try {
       const categoriaFinal = normalizeCategoria(editingCategoria);
       await setDoc(
@@ -149,6 +145,7 @@ export default function Users() {
               usuarios.map((usuario) => {
                 const isEditing = editingId === usuario.id;
                 const isSavingThisRow = savingId === usuario.id;
+                const isOwnRow = usuario.id === user?.uid;
                 return (
                   <tr key={usuario.id}>
                     <td>
@@ -229,15 +226,15 @@ export default function Users() {
                               <X size={16} />
                             </button>
                           </>
-                        ) : (
+                        ) : isOwnRow ? (
                           <button
                             className="action-button action-button-edit"
                             onClick={() => handleEdit(usuario)}
-                            title="Editar nome"
+                            title="Editar meus dados"
                           >
                             <Pencil size={16} />
                           </button>
-                        )}
+                        ) : null}
                       </div>
                     </td>
                   </tr>

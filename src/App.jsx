@@ -22,7 +22,7 @@ import { CATEGORIA_SIMPLES, CATEGORIA_COMPLETO } from './constants/userCategorie
 const ROUTES_WITHOUT_NAVBAR = ['/login']
  
 function AppLayout() {
-  const {loading, categoria} = useAuth()
+  const {loading, categoria, authError} = useAuth()
   const location = useLocation()
   const hideNavbar = ROUTES_WITHOUT_NAVBAR.includes(location.pathname)
  
@@ -39,6 +39,19 @@ function AppLayout() {
  
   return (
     <div className="app-container">
+      {authError && (
+        <div style={{
+          position: 'fixed', bottom: '1.5rem', left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#fee2e2', color: '#991b1b',
+          padding: '0.75rem 1.25rem', borderRadius: '8px',
+          fontSize: '0.875rem', zIndex: 9999,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          whiteSpace: 'nowrap'
+        }}>
+          {authError}
+        </div>
+      )}
       {!hideNavbar && <Navbar />}
       <main className={hideNavbar ? "app-main app-main--full" : "app-main"}>
         <Routes>

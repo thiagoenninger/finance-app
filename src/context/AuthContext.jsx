@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useMemo } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -18,6 +18,7 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined);
   const [perfil, setPerfil] = useState(undefined);
+  const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -39,10 +40,8 @@ export function AuthProvider({ children }) {
         });
       } catch (error) {
         console.error("Auth bootstrap error: ", error);
-        setPerfil({
-          nome: "",
-          categoria: CATEGORIA_SIMPLES,
-        });
+        setAuthError("Erro ao carregar perfil. Recarregue a página.")
+        setPerfil({nome: "", categoria: CATEGORIA_SIMPLES })
       } finally {
         setUser(firebaseUser);
       }
@@ -58,19 +57,13 @@ export function AuthProvider({ children }) {
   const isSimples = categoria === CATEGORIA_SIMPLES;
   const isCompleto = categoria === CATEGORIA_COMPLETO;
 
+  const value = useMemo(() => ({
+  user, perfil, categoria, isSimples, isCompleto, loading, login, logout, authError
+}), [user, perfil, categoria, isSimples, isCompleto, loading, authError])
+
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        perfil,
-        categoria,
-        isSimples,
-        isCompleto,
-        loading,
-        login,
-        logout,
-      }}
-    >
+      value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { X, Upload, Calendar, FileText } from 'lucide-react'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '../../firebase/firebase'
+import { parseValorBRL } from '../../utils/format'
 import './newContaDireta.css'
 
 
@@ -110,8 +111,7 @@ function NewContaDireta({ isOpen, onClose, onSave, editingConta = null }) {
       agencia: newForma === 'TED' ? prev.agencia : '',
       conta: newForma === 'TED' ? prev.conta : '',
       boletoFile: newForma === 'Boleto' ? prev.boletoFile : null,
-      boletoFileName: newForma === 'Boleto' ? prev.boletoFileName : '',
-      boletoError: ''
+      boletoFileName: newForma === 'Boleto' ? prev.boletoFileName : ''
     }))
     setBoletoError('')
   }
@@ -203,22 +203,7 @@ function NewContaDireta({ isOpen, onClose, onSave, editingConta = null }) {
       return
     }
 
-    let valorNumerico = 0
-    const valorStr = formData.valor.toString().trim()
-    
-    if (valorStr) {
-      let cleaned = valorStr.replace(/[R$\s]/g, '')
-      if (cleaned.includes(',')) {
-        cleaned = cleaned.replace(/\./g, '').replace(',', '.')
-      } else if (cleaned.includes('.')) {
-        const parts = cleaned.split('.')
-        if (parts.length > 2) {
-          cleaned = cleaned.replace(/\./g, '')
-        }
-      }
-      
-      valorNumerico = parseFloat(cleaned) || 0
-    }
+    const valorNumerico = parseValorBRL(formData.valor)
 
     if (valorNumerico <= 0) {
       return
@@ -515,6 +500,7 @@ function NewContaDireta({ isOpen, onClose, onSave, editingConta = null }) {
               onChange={handleChange}
               placeholder="Observações opcionais sobre esta conta..."
               rows={3}
+              maxLength={500}
             />
           </div>
 

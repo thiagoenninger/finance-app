@@ -7,8 +7,9 @@ import BaixaNoPagamento from './BaixaNoPagamento'
 import DateFilter from '../../components/DateFilter/DateFilter'
 import './style.css'
 
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc} from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, where, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL, formatDateBR, toDateInputString } from '../../utils/format'
 
 function Pagamentos() {
   const [pagamentos, setPagamentos] = useState([])
@@ -27,17 +28,6 @@ function Pagamentos() {
   const [filterDateEnd, setFilterDateEnd] = useState('')
   const [isBaixaModalOpen, setIsBaixaModalOpen] = useState(false)
   const [pagamentoToBaixa, setPagamentoToBaixa] = useState(null)
-
-
-
-  const getDataPrevistaAsString = (dataPrevistaPagamento) => {
-    if (!dataPrevistaPagamento) return null
-    const d = dataPrevistaPagamento
-    if (typeof d === 'string' && d.includes('-')) return d
-    if (d?.toDate?.()) return d.toDate().toISOString().slice(0,10)
-    return new Date(d).toISOString().slice(0,10)
-  }
-
 
   const projetosUnicos = useMemo(() => {
     const map = new Map()
@@ -59,14 +49,14 @@ function Pagamentos() {
   
     if (filterDateMode === 'unica' && filterDate) {
       list = list.filter((p) => {
-        const dataStr = getDataPrevistaAsString(p.dataPrevistaPagamento)
+        const dataStr = toDateInputString(p.dataPrevistaPagamento)
         return dataStr === filterDate
       })
     }
   
     if (filterDateMode === 'periodo' && filterDateStart && filterDateEnd) {
       list = list.filter((p) => {
-        const dataStr = getDataPrevistaAsString(p.dataPrevistaPagamento)
+        const dataStr = toDateInputString(p.dataPrevistaPagamento)
         if (!dataStr) return false
         return dataStr >= filterDateStart && dataStr <= filterDateEnd
       })
@@ -88,13 +78,10 @@ function Pagamentos() {
       const pagamentosCollection = collection(db, 'pagamentos')
       const pagamentosSnapshot = await getDocs(pagamentosCollection)
 
-      const pagamentosList = []
-      pagamentosSnapshot.forEach((doc) => {
-        pagamentosList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
+      const pagamentosList = pagamentosSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
 
       // Ordenar por data de pagamento (mais recente primeiro)
       pagamentosList.sort((a, b) => {
@@ -144,7 +131,7 @@ function Pagamentos() {
           dataPrevistaPagamento: pagamentoData.dataPrevistaPagamento,
           tipoPagamento: pagamentoData.tipoPagamento,
           numeroParcelas: pagamentoData.numeroParcelas || 1,
-          updatedAt: new Date()
+          updatedAt: serverTimestamp()
         })
       } else {
         await addDoc(collection(db, 'pagamentos'), {
@@ -162,8 +149,8 @@ function Pagamentos() {
           dataPrevistaPagamento: pagamentoData.dataPrevistaPagamento,
           tipoPagamento: pagamentoData.tipoPagamento,
           numeroParcelas: pagamentoData.numeroParcelas || 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
           pagamentoEmAberto: true,
         })
       }
@@ -253,16 +240,17 @@ function Pagamentos() {
       if (rubricas[rubricaIndex]) {
         const valorAprovado = Number(rubricas[rubricaIndex].valorAprovado) || 0
         
-        // Buscar todos os pagamentos para esta rubrica (após deletar)
-        const pagamentosCollection = collection(db, 'pagamentos')
-        const pagamentosSnapshot = await getDocs(pagamentosCollection)
+        // Buscar pagamentos filtrados por projeto e rubrica (após deletar)
+        const pagamentosQuery = query(
+          collection(db, 'pagamentos'),
+          where('projetoId', '==', projetoId),
+          where('rubricaId', '==', String(rubricaId))
+        )
+        const pagamentosSnapshot = await getDocs(pagamentosQuery)
 
         let totalPago = 0
         pagamentosSnapshot.forEach((doc) => {
-          const pagamento = doc.data()
-          if (pagamento.projetoId === projetoId && pagamento.rubricaId === rubricaId) {
-            totalPago += Number(pagamento.valor) || 0
-          }
+          totalPago += Number(doc.data().valor) || 0
         })
 
         // Calcular e salvar o saldo
@@ -275,7 +263,7 @@ function Pagamentos() {
         // Atualizar o projeto
         await updateDoc(projetoRef, {
           rubricas: rubricas,
-          updatedAt: new Date()
+          updatedAt: serverTimestamp()
         })
       }
     } catch (err) {
@@ -301,32 +289,6 @@ function Pagamentos() {
   const handleConfirmBaixa = async () => {
     await fetchPagamentos()
     handleCloseBaixaModal()
-  }
-
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'R$ 0,00'
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    try {
-      if (typeof dateString === 'string' && dateString.includes('-')) {
-        const [year, month, day] = dateString.split('-')
-        return `${day}/${month}/${year}`
-      }
-      const date = dateString instanceof Date ? dateString : new Date(dateString)
-      if (isNaN(date.getTime())) {
-        return dateString
-      }
-      return date.toLocaleDateString('pt-BR')
-    } catch {
-      return dateString
-    }
   }
 
   useEffect(() => {
@@ -438,8 +400,8 @@ function Pagamentos() {
                   <td>{pagamento.pronac}</td>
                   <td>{pagamento.projetoNome}</td>
                   <td>{pagamento.rubricaNome}</td>
-                  <td>{formatCurrency(pagamento.valor)}</td>
-                  <td>{formatDate(pagamento.dataPrevistaPagamento)}</td>
+                  <td>{formatCurrencyBRL(pagamento.valor)}</td>
+                  <td>{formatDateBR(pagamento.dataPrevistaPagamento)}</td>
                   <td>
                     {pagamento.tipoPagamento === 'Parcelado' 
                       ? `${pagamento.tipoPagamento} (${pagamento.numeroParcelas}x)`

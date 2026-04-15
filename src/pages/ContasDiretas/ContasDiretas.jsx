@@ -9,6 +9,7 @@ import './style.css'
 
 import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL, formatDateBR, toDateInputString } from '../../utils/format'
 
 function ContasDiretas() {
   const navigate = useNavigate()
@@ -30,14 +31,6 @@ function ContasDiretas() {
   const [selectedIds, setSelectedIds] = useState([])
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
 
-  const getDataPagamentoAsString = (dataPagamento) => {
-    if (!dataPagamento) return null
-    const d = dataPagamento
-    if (typeof d === 'string' && d.includes('-')) return d
-    if (d?.toDate?.()) return d.toDate().toISOString().slice(0, 10)
-    return new Date(d).toISOString().slice(0, 10)
-  }
-
   const contasDiretasFiltradas = useMemo(() => {
     let list = contasDiretas
 
@@ -48,14 +41,14 @@ function ContasDiretas() {
 
     if (filterDateMode === 'unica' && filterDate) {
       list = list.filter((c) => {
-        const dataStr = getDataPagamentoAsString(c.dataPagamento)
+        const dataStr = toDateInputString(c.dataPagamento)
         return dataStr === filterDate
       })
     }
 
     if (filterDateMode === 'periodo' && filterDateStart && filterDateEnd) {
       list = list.filter((c) => {
-        const dataStr = getDataPagamentoAsString(c.dataPagamento)
+        const dataStr = toDateInputString(c.dataPagamento)
         if (!dataStr) return false
         return dataStr >= filterDateStart && dataStr <= filterDateEnd
       })
@@ -75,8 +68,8 @@ function ContasDiretas() {
       })
     } else if (sortField === 'dataPagamento') {
       sorted.sort((a, b) => {
-        const da = getDataPagamentoAsString(a.dataPagamento)
-        const db = getDataPagamentoAsString(b.dataPagamento)
+        const da = toDateInputString(a.dataPagamento)
+        const db = toDateInputString(b.dataPagamento)
         if (!da && !db) return 0
         if (!da) return 1
         if (!db) return -1
@@ -99,13 +92,10 @@ function ContasDiretas() {
       const contasCollection = collection(db, 'contasDiretas')
       const contasSnapshot = await getDocs(contasCollection)
 
-      const contasList = []
-      contasSnapshot.forEach((doc) => {
-        contasList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
+      const contasList = contasSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
 
       setContasDiretas(contasList)
     } catch (err) {
@@ -292,33 +282,6 @@ function ContasDiretas() {
     setIsBulkDeleteModalOpen(false)
   }
 
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'R$ 0,00'
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
-
-  const formatDate = (dateString) => {
-    if (!dateString) return '-'
-    try {
-      // Se for uma string no formato YYYY-MM-DD (do input date), converter
-      if (typeof dateString === 'string' && dateString.includes('-')) {
-        const [year, month, day] = dateString.split('-')
-        return `${day}/${month}/${year}`
-      }
-      const date = dateString instanceof Date ? dateString : new Date(dateString)
-      if (isNaN(date.getTime())) {
-        return dateString
-      }
-      return date.toLocaleDateString('pt-BR')
-    } catch {
-      return dateString
-    }
-  }
-
   useEffect(() => {
     fetchContasDiretas()
   }, [])
@@ -437,8 +400,8 @@ function ContasDiretas() {
                 >
                   <td>{conta.nome}</td>
                   <td>{conta.local}</td>
-                  <td>{formatCurrency(conta.valor)}</td>
-                  <td>{formatDate(conta.dataPagamento)}</td>
+                  <td>{formatCurrencyBRL(conta.valor)}</td>
+                  <td>{formatDateBR(conta.dataPagamento)}</td>
                   <td>
                     <span className={`pagamento-type pagamento-type-${conta.formaPagamento?.toLowerCase()}`}>
                       {conta.formaPagamento}

@@ -1,16 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL } from '../../utils/format'
 import './style.css'
-
-function formatCurrency(value) {
-  const number = Number(value) || 0
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: 2,
-  }).format(number)
-}
 
 export default function ConsultaSimples() {
   const [projetos, setProjetos] = useState([])
@@ -73,15 +65,12 @@ export default function ConsultaSimples() {
     setError('')
     try {
       const pagamentosRef = collection(db, 'pagamentos')
-      const q = query(pagamentosRef, where('projetoId', '==', projetoId))
+      const q = query(pagamentosRef, where('projetoId', '==', projetoId), where('rubricaId', '==', String(rubricaIndex)))
       const snap = await getDocs(q)
 
       let totalPago = 0
       snap.forEach((docSnap) => {
-        const p = docSnap.data()
-        if (p.rubricaId === rubricaIndex) {
-          totalPago += Number(p.valor) || 0
-        }
+        totalPago += Number(docSnap.data().valor) || 0
       })
 
       const saldo = (Number(valorAprovado) || 0) - totalPago
@@ -158,7 +147,7 @@ export default function ConsultaSimples() {
           <div className="consulta-simples-results">
             <div className="consulta-simples-result-box">
               <span className="label">Valor Total</span>
-              <strong>{formatCurrency(selectedRubrica.valorAprovado)}</strong>
+              <strong>{formatCurrencyBRL(selectedRubrica.valorAprovado)}</strong>
             </div>
 
             <div className="consulta-simples-result-box">
@@ -166,7 +155,7 @@ export default function ConsultaSimples() {
               <strong>
                 {loadingSaldo
                   ? 'Calculando...'
-                  : formatCurrency(saldoDisponivel ?? selectedRubrica.saldo ?? 0)}
+                  : formatCurrencyBRL(saldoDisponivel ?? selectedRubrica.saldo ?? 0)}
               </strong>
             </div>
           </div>

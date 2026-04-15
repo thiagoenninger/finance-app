@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { isCpfValid, isCnpjValid } from '../../utils/validation'
+import { formatCPF, formatCNPJ } from '../../utils/format'
 import './newFornecedor.css'
 
 function NewFornecedor({ isOpen, onClose, onSave, editingFornecedor = null }) {
@@ -51,28 +52,7 @@ function NewFornecedor({ isOpen, onClose, onSave, editingFornecedor = null }) {
     }))
   }
 
-  const formatCPF = (value) => {
-    const cleaned = value.replace(/\D/g, '')
-    if (cleaned.length <= 11) {
-      return cleaned
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
-    }
-    return value
-  }
 
-  const formatCNPJ = (value) => {
-    const cleaned = value.replace(/\D/g, '')
-    if (cleaned.length <= 14) {
-      return cleaned
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
-    }
-    return value
-  }
 
   const handleDocumentoChange = (e) => {
     let value = e.target.value

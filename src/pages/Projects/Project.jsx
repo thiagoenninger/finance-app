@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2 } from 'lucide-react'
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL, parseValorBRL } from '../../utils/format'
 import './Project.css'
 import * as XLSX from 'xlsx'
 import { FileSpreadsheet, Upload } from 'lucide-react'
@@ -35,14 +36,6 @@ export default function Project() {
     tipoRubrica: '',
     valorAprovado: ''
   })
-  
-  // Ref para manter referência ao estado mais atualizado de formData
-  const formDataRef = useRef(formData)
-  
-  // Atualizar ref sempre que formData mudar
-  useEffect(() => {
-    formDataRef.current = formData
-  }, [formData])
 
   useEffect(() => {
     fetchProponentes()
@@ -182,21 +175,7 @@ export default function Project() {
             if (typeof valorAprovadoRaw === 'number') {
               valorAprovado = valorAprovadoRaw
             } else {
-              const valorAprovadoStr = valorAprovadoRaw.toString().trim()
-              
-              if (valorAprovadoStr) {
-                let cleaned = valorAprovadoStr.replace(/[R$\s]/g, '')
-                if (cleaned.includes(',')) {
-                  cleaned = cleaned.replace(/\./g, '').replace(',', '.')
-                } else if (cleaned.includes('.')) {
-                  const parts = cleaned.split('.')
-                  if (parts.length > 2) {
-                    cleaned = cleaned.replace(/\./g, '')
-                  }
-                }
-                
-                valorAprovado = parseFloat(cleaned) || 0
-              }
+              valorAprovado = parseValorBRL(valorAprovadoRaw)
             }
           }
 
@@ -235,10 +214,8 @@ export default function Project() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Usar ref para garantir que temos o estado mais atualizado
-    const currentFormData = formDataRef.current
 
-    if (!currentFormData.pronac || !currentFormData.numeroConta || !currentFormData.nomeProjeto || !currentFormData.proponenteId) {
+    if (!formData.pronac || !formData.numeroConta || !formData.nomeProjeto || !formData.proponenteId) {
       setError('Por favor, preencha todos os campos obrigatórios')
       return
     }
@@ -247,49 +224,37 @@ export default function Project() {
       setSaving(true)
       setError(null)
 
-      const proponente = proponentes.find(p => p.id === currentFormData.proponenteId)
+      const proponente = proponentes.find(p => p.id === formData.proponenteId)
       const proponenteNome = proponente ? proponente.nome : ''
 
-      // Usar o estado mais atualizado do ref
-      const rubricasAtuais = currentFormData.rubricas || []
-      
-      console.log('Salvando projeto - Total de rubricas:', rubricasAtuais.length)
-      console.log('Rubricas a serem salvas:', rubricasAtuais)
+      const rubricasAtuais = formData.rubricas || []
       
       const valorTotal = rubricasAtuais.reduce((sum, rubrica) => {
         const valor = Number(rubrica.valorAprovado) || 0
         return sum + valor
       }, 0)
       const valorTotalRounded = Math.round(valorTotal * 100) / 100
-      
-      console.log('Valor total calculado:', valorTotalRounded)
 
       const projetoRef = doc(db, 'projetos', id)
       const updateData = {
-        pronac: currentFormData.pronac,
-        numeroConta: currentFormData.numeroConta,
-        nomeProjeto: currentFormData.nomeProjeto,
-        proponenteId: currentFormData.proponenteId,
+        pronac: formData.pronac,
+        numeroConta: formData.numeroConta,
+        nomeProjeto: formData.nomeProjeto,
+        proponenteId: formData.proponenteId,
         proponenteNome: proponenteNome,
         rubricas: rubricasAtuais,
         valorTotal: valorTotalRounded,
         updatedAt: new Date()
       }
       
-      console.log('Dados a serem salvos no Firestore:', updateData)
-      console.log('Número de rubricas no updateData:', updateData.rubricas.length)
-      
       await updateDoc(projetoRef, updateData)
       
-      console.log('Projeto salvo com sucesso no Firestore')
       
-      // Atualizar o estado local
       setProjeto(prev => ({
         ...prev,
         ...updateData
       }))
 
-      // Navegar de volta para a lista
       navigate('/projetos')
     } catch (err) {
       setError('Erro ao salvar projeto: ' + err.message)
@@ -301,15 +266,6 @@ export default function Project() {
 
   const handleCancel = () => {
     navigate('/projetos')
-  }
-
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'R$ 0,00'
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
   }
 
   const calculateValorTotal = () => {
@@ -329,7 +285,6 @@ export default function Project() {
   }
 
   const handleAddManualRubrica = () => {
-    // Validar que todos os campos estão preenchidos
     if (!manualRubrica.produto.trim() || 
         !manualRubrica.etapa.trim() || 
         !manualRubrica.local.trim() || 
@@ -339,30 +294,13 @@ export default function Project() {
       return
     }
 
-    // Converter valor aprovado para número
-    let valorAprovado = 0
-    const valorStr = manualRubrica.valorAprovado.toString().trim()
-    
-    if (valorStr) {
-      let cleaned = valorStr.replace(/[R$\s]/g, '')
-      if (cleaned.includes(',')) {
-        cleaned = cleaned.replace(/\./g, '').replace(',', '.')
-      } else if (cleaned.includes('.')) {
-        const parts = cleaned.split('.')
-        if (parts.length > 2) {
-          cleaned = cleaned.replace(/\./g, '')
-        }
-      }
-      
-      valorAprovado = parseFloat(cleaned) || 0
-    }
+    const valorAprovado = parseValorBRL(manualRubrica.valorAprovado)
 
     if (valorAprovado <= 0) {
       setError('O valor aprovado deve ser maior que zero')
       return
     }
 
-    // Adicionar a nova rubrica à lista usando função de callback para garantir estado atualizado
     setFormData(prev => {
       const novaRubrica = {
         produto: manualRubrica.produto.trim(),
@@ -374,9 +312,6 @@ export default function Project() {
       
       const novasRubricas = [...prev.rubricas, novaRubrica]
       
-      console.log('Adicionando rubrica manual:', novaRubrica)
-      console.log('Total de rubricas após adicionar:', novasRubricas.length)
-      console.log('Rubricas:', novasRubricas)
       
       return {
         ...prev,
@@ -384,7 +319,6 @@ export default function Project() {
       }
     })
 
-    // Limpar o formulário e ocultar
     setManualRubrica({
       produto: '',
       etapa: '',
@@ -400,8 +334,6 @@ export default function Project() {
     setFormData(prev => {
       const novasRubricas = prev.rubricas.filter((_, i) => i !== index)
       
-      console.log('Deletando rubrica no índice:', index)
-      console.log('Total de rubricas após deletar:', novasRubricas.length)
       
       return {
         ...prev,
@@ -667,7 +599,7 @@ export default function Project() {
             <div className="rubricas-header">
               <h3>Rubricas ({formData.rubricas.length} {formData.rubricas.length === 1 ? 'rubrica' : 'rubricas'})</h3>
               <div className="valor-total">
-                <strong>Valor Total: {formatCurrency(calculateValorTotal())}</strong>
+                <strong>Valor Total: {formatCurrencyBRL(calculateValorTotal())}</strong>
               </div>
             </div>
             <div className="rubricas-table-wrapper">
@@ -689,7 +621,7 @@ export default function Project() {
                       <td>{rubrica.etapa}</td>
                       <td>{rubrica.local}</td>
                       <td>{rubrica.tipoRubrica}</td>
-                      <td>{formatCurrency(rubrica.valorAprovado)}</td>
+                      <td>{formatCurrencyBRL(rubrica.valorAprovado)}</td>
                       <td>
                         <button
                           type="button"

@@ -140,6 +140,25 @@
     display: block;
 }
 
+/* Avisos de campo vazio */
+.form-empty-warning {
+    padding: 1rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    color: #856404;
+    font-size: 0.875rem;
+}
+
+.form-empty-neutral {
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
 /* Fields Row */
 .fields-row {
     display: flex;

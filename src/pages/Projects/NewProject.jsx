@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Upload, FileSpreadsheet } from 'lucide-react'
 import * as XLSX from 'xlsx'
+import { formatCurrencyBRL, parseValorBRL } from '../../utils/format'
 import './newProject.css'
 
 function NewProject({ isOpen, onClose, onSave, editingProject = null, proponentes = [] }) {
@@ -62,10 +63,10 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
       'application/vnd.ms-excel',
       'text/csv'
     ]
-    
-    const isValidType = validTypes.includes(file.type) || 
-                        file.name.endsWith('.xlsx') || 
-                        file.name.endsWith('.xls') || 
+
+    const isValidType = validTypes.includes(file.type) ||
+                        file.name.endsWith('.xlsx') ||
+                        file.name.endsWith('.xls') ||
                         file.name.endsWith('.csv')
 
     if (!isValidType) {
@@ -83,16 +84,16 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
       try {
         const data = new Uint8Array(event.target.result)
         const workbook = XLSX.read(data, { type: 'array' })
-        
+
         const firstSheetName = workbook.SheetNames[0]
         const worksheet = workbook.Sheets[firstSheetName]
-        
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-          header: 1, 
+
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
           defval: '',
           raw: true
         })
-        
+
         if (jsonData.length < 2) {
           setExcelError('O arquivo Excel deve conter pelo menos uma linha de dados além do cabeçalho')
           setRubricasPreview([])
@@ -100,10 +101,10 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
         }
 
         const rubricas = []
-        
+
         for (let i = 1; i < jsonData.length; i++) {
           const row = jsonData[i]
-          
+
           if (!row || row.length === 0 || row.every(cell => !cell || cell.toString().trim() === '')) {
             continue
           }
@@ -115,26 +116,12 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
           const valorAprovadoRaw = row[4]
 
           let valorAprovado = 0
-          
+
           if (valorAprovadoRaw !== undefined && valorAprovadoRaw !== null && valorAprovadoRaw !== '') {
             if (typeof valorAprovadoRaw === 'number') {
               valorAprovado = valorAprovadoRaw
             } else {
-              const valorAprovadoStr = valorAprovadoRaw.toString().trim()
-              
-              if (valorAprovadoStr) {
-                let cleaned = valorAprovadoStr.replace(/[R$\s]/g, '')
-                if (cleaned.includes(',')) {
-                  cleaned = cleaned.replace(/\./g, '').replace(',', '.')
-                } else if (cleaned.includes('.')) {
-                  const parts = cleaned.split('.')
-                  if (parts.length > 2) {
-                    cleaned = cleaned.replace(/\./g, '')
-                  }
-                }
-                
-                valorAprovado = parseFloat(cleaned) || 0
-              }
+              valorAprovado = parseValorBRL(valorAprovadoRaw)
             }
           }
 
@@ -153,14 +140,6 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
           setExcelError('Nenhuma rubrica válida encontrada no arquivo Excel')
           setRubricasPreview([])
         } else {
-          const debugSum = rubricas.reduce((sum, r) => sum + (Number(r.valorAprovado) || 0), 0)
-          console.log(`Total rubricas: ${rubricas.length}`)
-          console.log(`Soma dos valores: R$ ${debugSum.toFixed(2)}`)
-          console.log('Primeiras 3 rubricas:', rubricas.slice(0, 3).map(r => ({ 
-            produto: r.produto, 
-            valor: r.valorAprovado 
-          })))
-          
           setRubricasPreview(rubricas)
           setFormData(prev => ({
             ...prev,
@@ -198,9 +177,9 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
         proponenteId: '',
         rubricas: []
       })
-        setExcelFileName('')
-        setRubricasPreview([])
-        setExcelError('')
+      setExcelFileName('')
+      setRubricasPreview([])
+      setExcelError('')
       onClose()
     }
   }
@@ -213,18 +192,10 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
       proponenteId: '',
       rubricas: []
     })
-        setExcelFileName('')
-        setRubricasPreview([])
-        setExcelError('')
+    setExcelFileName('')
+    setRubricasPreview([])
+    setExcelError('')
     onClose()
-  }
-
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
   }
 
   const calculateValorTotal = () => {
@@ -242,8 +213,8 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
       <div className="modal-content modal-content-large" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEditMode ? 'Editar Projeto' : 'Novo Projeto'}</h2>
-          <button 
-            className="modal-close-button" 
+          <button
+            className="modal-close-button"
             onClick={handleCancel}
             type="button"
             aria-label="Fechar modal"
@@ -359,7 +330,7 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
               <div className="rubricas-preview-header">
                 <h3>Pré-visualização das Rubricas ({rubricasPreview.length} {rubricasPreview.length === 1 ? 'rubrica' : 'rubricas'})</h3>
                 <div className="valor-total-preview">
-                  <strong>Valor Total: {formatCurrency(calculateValorTotal())}</strong>
+                  <strong>Valor Total: {formatCurrencyBRL(calculateValorTotal())}</strong>
                 </div>
               </div>
               <div className="rubricas-table-wrapper">
@@ -380,7 +351,7 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
                         <td>{rubrica.etapa}</td>
                         <td>{rubrica.local}</td>
                         <td>{rubrica.tipoRubrica}</td>
-                        <td>{formatCurrency(rubrica.valorAprovado)}</td>
+                        <td>{formatCurrencyBRL(rubrica.valorAprovado)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -395,15 +366,15 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
           )}
 
           <div className="modal-actions">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="modal-button modal-button-cancel"
               onClick={handleCancel}
             >
               Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="modal-button modal-button-submit"
               disabled={proponentes.length === 0}
             >
@@ -417,4 +388,3 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
 }
 
 export default NewProject
-

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { X, Upload, FileText } from "lucide-react";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../firebase/firebase";
-import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
+import { formatCurrencyBRL, parseValorBRL } from "../../utils/format";
 import "./baixaNoPagamento.css";
 
 function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
@@ -86,18 +87,6 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
     return getDownloadURL(snapshot.ref);
   };
 
-  const parseValor = (str) => {
-    if (!str || typeof str !== "string") return 0;
-    let cleaned = str.replace(/[R$\s]/g, "").trim();
-    if (cleaned.includes(","))
-      cleaned = cleaned.replace(/\./g, "").replace(",", ".");
-    else if (cleaned.includes(".")) {
-      const parts = cleaned.split(".");
-      if (parts.length > 2) cleaned = cleaned.replace(/\./g, "");
-    }
-    return parseFloat(cleaned) || 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!pagamento || !db) return;
@@ -119,7 +108,7 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
       return;
     }
 
-    const valorNumerico = parseValor(valorPago);
+    const valorNumerico = parseValorBRL(valorPago);
     const valorEsperado = Number(pagamento.valor);
     if (Math.abs(valorNumerico - valorEsperado) > 0.01) {
       return;
@@ -135,7 +124,7 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
         valorPago: valorNumerico,
         numeroComprovante: formData.numeroComprovante.trim(),
         numeroPagamento: formData.numeroPagamento.trim(),
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
       });
       const baixaId = baixaRef.id;
 
@@ -148,14 +137,14 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
         await updateDoc(doc(db, "baixasPagamento", baixaId), {
           comprovanteUrl,
           comprovanteFileName: formData.comprovanteFileName,
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         });
       }
 
       const pagamentoRef = doc(db, "pagamentos", pagamento.id);
       await updateDoc(pagamentoRef, {
         pagamentoEmAberto: false,
-        updatedAt: new Date(),
+        updatedAt: serverTimestamp(),
       });
 
       onConfirm();
@@ -179,15 +168,6 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
     });
     setComprovanteError("");
     onClose();
-  };
-
-  const formatCurrency = (value) => {
-    if (value == null || value === "") return "R$ 0,00";
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-      minimumFractionDigits: 2,
-    }).format(Number(value));
   };
 
   if (!isOpen) return null;
@@ -236,7 +216,7 @@ function BaixaNoPagamento({ isOpen, onClose, onConfirm, pagamento }) {
             />
             {pagamento && (
               <span className="form-hint">
-                Valor do pagamento: {formatCurrency(pagamento.valor)}
+                Valor do pagamento: {formatCurrencyBRL(pagamento.valor)}
               </span>
             )}
           </div>

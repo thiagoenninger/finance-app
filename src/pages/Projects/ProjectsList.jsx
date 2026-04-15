@@ -8,6 +8,7 @@ import './style.css'
 
 import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { formatCurrencyBRL } from '../../utils/format'
 
 export default function ProjectsList() {
   const navigate = useNavigate()
@@ -23,6 +24,7 @@ export default function ProjectsList() {
   const [editingProject, setEditingProject] = useState(null)
 
   const fetchProponentes = async () => {
+    setLoading(true)
     try {
       if (!db) {
         throw new Error('Firebase não inicializado')
@@ -31,17 +33,16 @@ export default function ProjectsList() {
       const proponentesCollection = collection(db, 'proponentes')
       const proponenteSnapshot = await getDocs(proponentesCollection)
 
-      const proponentesList = []
-      proponenteSnapshot.forEach((doc) => {
-        proponentesList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
+      const proponentesList = proponenteSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
 
       setProponentes(proponentesList)
     } catch (err) {
       console.error('Error fetching proponentes:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -57,13 +58,10 @@ export default function ProjectsList() {
       const projetosCollection = collection(db, 'projetos')
       const projetoSnapshot = await getDocs(projetosCollection)
 
-      const projetosList = []
-      projetoSnapshot.forEach((doc) => {
-        projetosList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
+      const projetosList = projetoSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }))
 
       setProjetos(projetosList)
     } catch (err) {
@@ -174,15 +172,6 @@ export default function ProjectsList() {
     setProjetoToDelete(null)
   }
 
-  const formatCurrency = (value) => {
-    if (!value && value !== 0) return 'R$ 0,00'
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2
-    }).format(value)
-  }
-
   useEffect(() => {
     fetchProponentes()
     fetchProjetos()
@@ -243,7 +232,7 @@ export default function ProjectsList() {
                   <td>{projeto.pronac}</td>
                   <td>{projeto.nomeProjeto}</td>
                   <td>{projeto.proponenteNome || 'N/A'}</td>
-                  <td>{formatCurrency(projeto.valorTotal)}</td>
+                  <td>{formatCurrencyBRL(projeto.valorTotal)}</td>
                   <td>
                     <div className="actions-buttons">
                       <button 

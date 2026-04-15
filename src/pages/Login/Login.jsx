@@ -38,7 +38,8 @@ export default function Login() {
       await login(email, password);
     } catch (err) {
       setError(getAuthErrorMessage(err.code, "Erro ao fazer login. Tente novamente."));
-      setSubmitting(false);
+    } finally {
+      setSubmitting(false)
     }
   };
 
