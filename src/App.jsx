@@ -15,9 +15,15 @@ import './App.css'
 import ProjectsList from './pages/Projects/ProjectsList'
 import Project from './pages/Projects/Project'
 import Relatorios from './pages/Relatorios/Relatorios'
+import RelatorioDetalhado from './pages/Relatorios/RelatorioDetalhado/RelatorioDetalhado'
 import ConsultaSimples from './pages/ConsultaSimples/ConsultaSimples'
 import CategoryRoute from './components/CategoryRoute/CategoryRoute'
-import { CATEGORIA_SIMPLES, CATEGORIA_COMPLETO } from './constants/userCategories'
+import {
+  CATEGORIA_CONSULTA,
+  CATEGORIA_SIMPLIFICADO,
+  CATEGORIA_FINANCEIRO,
+  CATEGORIA_ADMINISTRADOR,
+} from './constants/userCategories'
  
 const ROUTES_WITHOUT_NAVBAR = ['/login']
  
@@ -59,7 +65,7 @@ function AppLayout() {
           <Route
             path="/consulta-simples"
             element={
-              <CategoryRoute allow={[CATEGORIA_SIMPLES]}>
+              <CategoryRoute allow={[CATEGORIA_CONSULTA, CATEGORIA_SIMPLIFICADO]}>
                 <ConsultaSimples />
               </CategoryRoute>
             }
@@ -67,7 +73,7 @@ function AppLayout() {
           <Route
             path="/users"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
                 <Users />
               </CategoryRoute>
             }
@@ -75,7 +81,7 @@ function AppLayout() {
           <Route
             path="/proponentes"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
                 <Proponentes />
               </CategoryRoute>
             }
@@ -83,7 +89,7 @@ function AppLayout() {
           <Route
             path="/fornecedores"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <Fornecedores />
               </CategoryRoute>
             }
@@ -91,7 +97,7 @@ function AppLayout() {
           <Route
             path="/contas-diretas"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <ContasDiretas />
               </CategoryRoute>
             }
@@ -99,7 +105,7 @@ function AppLayout() {
           <Route
             path="/contas-diretas/:id"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <ContaDireta />
               </CategoryRoute>
             }
@@ -107,7 +113,7 @@ function AppLayout() {
           <Route
             path="/pagamentos"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_SIMPLIFICADO, CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <Pagamentos />
               </CategoryRoute>
             }
@@ -115,7 +121,7 @@ function AppLayout() {
           <Route
             path="/projetos"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <ProjectsList />
               </CategoryRoute>
             }
@@ -123,7 +129,7 @@ function AppLayout() {
           <Route
             path="/projetos/:id"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <Project />
               </CategoryRoute>
             }
@@ -131,15 +137,23 @@ function AppLayout() {
           <Route
             path="/relatorios"
             element={
-              <CategoryRoute allow={[CATEGORIA_COMPLETO]}>
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
                 <Relatorios />
+              </CategoryRoute>
+            }
+          />
+          <Route
+            path="/relatorios/detalhado"
+            element={
+              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                <RelatorioDetalhado />
               </CategoryRoute>
             }
           />
           <Route
             path="/"
             element={
-              categoria === CATEGORIA_SIMPLES ? (
+              (categoria === CATEGORIA_CONSULTA || categoria === CATEGORIA_SIMPLIFICADO) ? (
                 <Navigate to="/consulta-simples" replace />
               ) : (
                 <Navigate to="/projetos" replace />

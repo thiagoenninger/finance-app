@@ -1,0 +1,238 @@
+@import '../../../variables.css';
+
+/* ── Page ─────────────────────────────────────────────────────────────────── */
+.rel-det-page {
+  width: 100%;
+  padding: 2rem;
+  background-color: var(--background);
+  min-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.rel-det-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rel-det-header-text h1 {
+  color: var(--text-primary);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.rel-det-header-text p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Filters ──────────────────────────────────────────────────────────────── */
+.rel-det-filters {
+  margin: 2rem 0;
+}
+
+.rel-det-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.rel-det-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.rel-det-filter-field label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.rel-det-filter-field input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  min-width: 160px;
+}
+
+.rel-det-btn-clear {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--light);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.rel-det-btn-clear:hover:not(:disabled) {
+  background-color: var(--secondary);
+}
+
+.rel-det-btn-clear:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Actions group — pushed to the right */
+.rel-det-filters-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.rel-det-btn-generate {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--primary, #2563eb);
+  border-radius: 8px;
+  background-color: var(--primary, #2563eb);
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rel-det-btn-generate:hover:not(:disabled) {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.rel-det-btn-generate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rel-det-btn-save {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rel-det-btn-save:hover:not(:disabled) {
+  background-color: var(--secondary);
+  color: var(--text-white);
+}
+
+.rel-det-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── Error ────────────────────────────────────────────────────────────────── */
+.rel-det-error {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #fee;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.rel-det-table-container {
+  margin-top: 1.5rem;
+}
+
+.rel-det-state-msg {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--light);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+}
+
+.rel-det-table-wrapper {
+  overflow-x: auto;
+}
+
+.rel-det-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+}
+
+.rel-det-table th,
+.rel-det-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--card-border);
+  vertical-align: middle;
+  text-align: left;
+}
+
+.rel-det-table th {
+  background-color: var(--light);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.rel-det-table td {
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.rel-det-table tbody tr:hover td {
+  background-color: #f9fafb;
+}
+
+/* NF download button */
+.rel-det-nf-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary, #2563eb);
+  transition: color 0.15s;
+}
+
+.rel-det-nf-download:hover {
+  color: var(--accent);
+}
+
+.rel-det-nf-none {
+  color: var(--text-secondary);
+}
+
+/* ── Clear FAB ────────────────────────────────────────────────────────────── */
+.rel-det-clear-fab {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1000;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background-color: var(--card-background);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.rel-det-clear-fab:hover:not(:disabled) {
+  background-color: var(--secondary);
+  color: var(--text-white);
+}
+
+.rel-det-clear-fab:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

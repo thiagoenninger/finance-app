@@ -19,6 +19,14 @@
   margin: 0;
 }
 
+.relatorios-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+
 /* Filter Section */
 .relatorios-filters {
   margin: 2rem 0;

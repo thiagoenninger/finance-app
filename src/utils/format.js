@@ -104,3 +104,12 @@ export function formatCNPJ(value) {
   }
   return value
 }
+
+/* Soma o valorAprovado de um array de rubricas */
+
+export function calculateRubricasTotal(rubricas = []) {
+  const total = rubricas.reduce((sum, rubrica) => {
+    return sum + (Number(rubrica.valorAprovado) || 0)
+  }, 0)
+  return Math.round(total * 100) / 100
+}

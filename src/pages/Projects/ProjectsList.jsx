@@ -6,132 +6,38 @@ import DeleteConfirmation from '../../components/DeleteConfirmation/DeleteConfir
 import NewProject from './NewProject'
 import './style.css'
 
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
-import { formatCurrencyBRL } from '../../utils/format'
+import { formatCurrencyBRL, calculateRubricasTotal } from '../../utils/format'
+import { useCRUDList } from '../../hooks/useCRUDList'
 
 export default function ProjectsList() {
   const navigate = useNavigate()
-  const [projetos, setProjetos] = useState([])
   const [proponentes, setProponentes] = useState([])
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [projetoToDelete, setProjetoToDelete] = useState(null)
-  const [editingProject, setEditingProject] = useState(null)
+  const {
+    items: projetos,
+    loading, setLoading,
+    error, setError,
+    isModalOpen,
+    isDeleteModalOpen,
+    itemToDelete: projetoToDelete,
+    editingItem: editingProject,
+    fetchItems: fetchProjetos,
+    handleNew: handleNewProject,
+    handleCloseModal,
+    handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
+  } = useCRUDList('projetos', { entityName: 'projeto' })
 
   const fetchProponentes = async () => {
-    setLoading(true)
     try {
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const proponentesCollection = collection(db, 'proponentes')
-      const proponenteSnapshot = await getDocs(proponentesCollection)
-
-      const proponentesList = proponenteSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-
-      setProponentes(proponentesList)
+      if (!db) throw new Error('Firebase não inicializado')
+      const snapshot = await getDocs(collection(db, 'proponentes'))
+      setProponentes(snapshot.docs.map(d => ({ id: d.id, ...d.data() })))
     } catch (err) {
       console.error('Error fetching proponentes:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchProjetos = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const projetosCollection = collection(db, 'projetos')
-      const projetoSnapshot = await getDocs(projetosCollection)
-
-      const projetosList = projetoSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-
-      setProjetos(projetosList)
-    } catch (err) {
-      setError('Erro ao carregar projetos: ' + err.message)
-      console.error('Error fetching projetos:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNewProject = () => {
-    setEditingProject(null)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setEditingProject(null)
-  }
-
-  const handleSaveProject = async (projectData, isEditMode) => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const proponente = proponentes.find(p => p.id === projectData.proponenteId)
-      const proponenteNome = proponente ? proponente.nome : ''
-
-      const rubricas = projectData.rubricas || []
-      const valorTotal = rubricas.reduce((sum, rubrica) => {
-        const valor = Number(rubrica.valorAprovado) || 0
-        return sum + valor
-      }, 0)
-      const valorTotalRounded = Math.round(valorTotal * 100) / 100
-
-      if (isEditMode) {
-        const projetoRef = doc(db, 'projetos', projectData.id)
-        const updateData = {
-          pronac: projectData.pronac,
-          numeroConta: projectData.numeroConta,
-          nomeProjeto: projectData.nomeProjeto,
-          proponenteId: projectData.proponenteId,
-          proponenteNome: proponenteNome,
-          rubricas: rubricas,
-          valorTotal: valorTotalRounded,
-          updatedAt: new Date()
-        }
-        await updateDoc(projetoRef, updateData)
-      } else {
-        await addDoc(collection(db, 'projetos'), {
-          pronac: projectData.pronac,
-          numeroConta: projectData.numeroConta,
-          nomeProjeto: projectData.nomeProjeto,
-          proponenteId: projectData.proponenteId,
-          proponenteNome: proponenteNome,
-          rubricas: rubricas,
-          valorTotal: valorTotalRounded,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        })
-      }
-      await fetchProjetos()
-
-      setIsModalOpen(false)
-      setEditingProject(null)
-    } catch (err) {
-      setError('Erro ao salvar projeto: ' + err.message)
-      console.error('Error saving project:', err)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -141,40 +47,56 @@ export default function ProjectsList() {
 
   const handleDeleteProject = (projetoId) => {
     const projeto = projetos.find(p => p.id === projetoId)
-    setProjetoToDelete({ id: projetoId, nomeProjeto: projeto?.nomeProjeto || '' })
-    setIsDeleteModalOpen(true)
+    handleDelete(projetoId, projeto?.nomeProjeto || '')
   }
 
-  const handleConfirmDelete = async () => {
-    if (!projetoToDelete) return
-
+  const handleSaveProject = async (projectData, isEditMode) => {
     try {
       setLoading(true)
       setError(null)
 
-      const projetoRef = doc(db, 'projetos', projetoToDelete.id)
-      await deleteDoc(projetoRef)
+      const proponente = proponentes.find(p => p.id === projectData.proponenteId)
+      const proponenteNome = proponente ? proponente.nome : ''
+      const rubricas = projectData.rubricas || []
+      const valorTotal = calculateRubricasTotal(rubricas)
 
+      if (isEditMode) {
+        await updateDoc(doc(db, 'projetos', projectData.id), {
+          pronac: projectData.pronac,
+          numeroConta: projectData.numeroConta,
+          nomeProjeto: projectData.nomeProjeto,
+          proponenteId: projectData.proponenteId,
+          proponenteNome,
+          rubricas,
+          valorTotal,
+          updatedAt: new Date()
+        })
+      } else {
+        await addDoc(collection(db, 'projetos'), {
+          pronac: projectData.pronac,
+          numeroConta: projectData.numeroConta,
+          nomeProjeto: projectData.nomeProjeto,
+          proponenteId: projectData.proponenteId,
+          proponenteNome,
+          rubricas,
+          valorTotal,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+      }
       await fetchProjetos()
-
-      setIsDeleteModalOpen(false)
-      setProjetoToDelete(null)
+      handleCloseModal()
     } catch (err) {
-      setError('Erro ao excluir projeto: ' + err.message)
-      console.error('Error deleting project:', err)
+      setError('Erro ao salvar projeto: ' + err.message)
+      console.error('Error saving project:', err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setProjetoToDelete(null)
-  }
-
   useEffect(() => {
     fetchProponentes()
-    fetchProjetos()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -262,10 +184,10 @@ export default function ProjectsList() {
         </div>
       </div>
 
-      <NewProject 
+      <NewProject
         key={editingProject?.id || 'new-project'}
-        isOpen={isModalOpen} 
-        onClose={handleCloseModal} 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
         onSave={handleSaveProject}
         editingProject={editingProject}
         proponentes={proponentes}
@@ -275,7 +197,7 @@ export default function ProjectsList() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        itemName={projetoToDelete?.nomeProjeto}
+        itemName={projetoToDelete?.label}
         itemType="projeto"
       />
     </>

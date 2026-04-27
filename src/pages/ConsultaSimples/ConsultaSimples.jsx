@@ -54,7 +54,7 @@ export default function ConsultaSimples() {
     setSaldoDisponivel(null)
 
     const projeto = projetos.find(
-      (p) => (p.nomeProjeto || '').toLowerCase() === value.trim().toLowerCase()
+      (p) => (p.pronac || '').toLowerCase() === value.trim().toLowerCase()
     )
 
     setSelectedProjeto(projeto || null)
@@ -107,19 +107,19 @@ export default function ConsultaSimples() {
 
       <div className="consulta-simples-card">
         <div className="consulta-simples-field">
-          <label htmlFor="projeto">Projeto</label>
+          <label htmlFor="projeto">PRONAC</label>
           <input
             id="projeto"
             type="text"
             list="projetos-list"
-            placeholder={loadingProjetos ? 'Carregando projetos...' : 'Digite o nome do projeto'}
+            placeholder={loadingProjetos ? 'Carregando projetos...' : 'Digite o PRONAC'}
             value={projetoInput}
             onChange={(e) => handleProjetoChange(e.target.value)}
             disabled={loadingProjetos}
           />
           <datalist id="projetos-list">
             {projetos.map((projeto) => (
-              <option key={projeto.id} value={projeto.nomeProjeto || ''} />
+              <option key={projeto.id} value={projeto.pronac || ''} />
             ))}
           </datalist>
         </div>

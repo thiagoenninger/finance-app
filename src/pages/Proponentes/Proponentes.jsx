@@ -1,61 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import DeleteConfirmation from '../../components/DeleteConfirmation/DeleteConfirmation'
 import NewProponente from './NewProponente'
 import './style.css'
 
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
+import { collection, addDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { useCRUDList } from '../../hooks/useCRUDList'
 
 function Proponentes() {
-  const [proponentes, setProponentes] = useState([])
+  const {
+    items: proponentes,
+    loading, setLoading,
+    error, setError,
+    isModalOpen,
+    isDeleteModalOpen,
+    itemToDelete: proponenteToDelete,
+    editingItem: editingProponente,
+    fetchItems: fetchProponentes,
+    handleNew: handleNewProponente,
+    handleCloseModal,
+    handleEdit: handleEditProponente,
+    handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
+  } = useCRUDList('proponentes', { entityName: 'proponente' })
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [proponenteToDelete, setProponenteToDelete] = useState(null)
-  const [editingProponente, setEditingProponente] = useState(null)
-
-  const fetchProponentes = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const proponentesCollection = collection(db, 'proponentes')
-      const proponenteSnapshot = await getDocs(proponentesCollection)
-
-      const proponentesList = []
-      proponenteSnapshot.forEach((doc) => {
-        proponentesList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
-
-      setProponentes(proponentesList)
-    } catch (err) {
-      setError('Erro ao carregar proponentes: ' + err.message)
-      console.error('Error fetching proponentes:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNewProponente = () => {
-    setEditingProponente(null)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setEditingProponente(null)
+  const handleDeleteProponente = (proponenteId) => {
+    const proponente = proponentes.find(p => p.id === proponenteId)
+    handleDelete(proponenteId, proponente?.nome || '')
   }
 
   const handleSaveProponente = async (proponenteData, isEditMode) => {
@@ -64,7 +38,6 @@ function Proponentes() {
       setError(null)
 
       if (isEditMode) {
-        //update existing proponente
         const proponenteRef = doc(db, 'proponentes', proponenteData.id)
         await updateDoc(proponenteRef, {
           nome: proponenteData.nome,
@@ -73,7 +46,6 @@ function Proponentes() {
           updatedAt: new Date()
         })
       } else {
-        //create new proponente
         await addDoc(collection(db, 'proponentes'), {
           nome: proponenteData.nome,
           tipoDocumento: proponenteData.tipoDocumento,
@@ -83,9 +55,7 @@ function Proponentes() {
         })
       }
       await fetchProponentes()
-
-      setIsModalOpen(false)
-      setEditingProponente(null)
+      handleCloseModal()
     } catch (err) {
       setError('Erro ao salvar proponente: ' + err.message)
       console.error('Error saving proponente:', err)
@@ -93,51 +63,6 @@ function Proponentes() {
       setLoading(false)
     }
   }
-
-  const handleEditProponente = (proponenteId) => {
-    const proponente = proponentes.find(p => p.id === proponenteId)
-    if (proponente) {
-      setEditingProponente(proponente)
-      setIsModalOpen(true)
-    }
-  }
-
-  const handleDeleteProponente = (proponenteId) => {
-    const proponente = proponentes.find(p => p.id === proponenteId)
-    setProponenteToDelete({ id: proponenteId, nome: proponente?.nome || '' })
-    setIsDeleteModalOpen(true)
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!proponenteToDelete) return
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const proponenteRef = doc(db, 'proponentes', proponenteToDelete.id)
-      await deleteDoc(proponenteRef)
-
-      await fetchProponentes()
-
-      setIsDeleteModalOpen(false)
-      setProponenteToDelete(null)
-    } catch (err) {
-      setError('Erro ao excluir proponente: ' + err.message)
-      console.error('Error deleting proponente:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setProponenteToDelete(null)
-  }
-
-  useEffect(() => {
-    fetchProponentes()
-  }, [])
 
   return (
     <>
@@ -241,7 +166,7 @@ function Proponentes() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        itemName={proponenteToDelete?.nome}
+        itemName={proponenteToDelete?.label}
         itemType="proponente"
       />
     </>

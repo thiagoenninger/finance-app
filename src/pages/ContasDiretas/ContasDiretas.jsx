@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pencil, Trash2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
@@ -7,21 +7,30 @@ import NewContaDireta from './NewContaDireta'
 import DateFilter from '../../components/DateFilter/DateFilter'
 import './style.css'
 
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
+import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
 import { formatCurrencyBRL, formatDateBR, toDateInputString } from '../../utils/format'
+import { useCRUDList } from '../../hooks/useCRUDList'
 
 function ContasDiretas() {
   const navigate = useNavigate()
-  const [contasDiretas, setContasDiretas] = useState([])
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [contaToDelete, setContaToDelete] = useState(null)
-  const [editingConta, setEditingConta] = useState(null)
+  const {
+    items: contasDiretas,
+    loading, setLoading,
+    error, setError,
+    isModalOpen,
+    isDeleteModalOpen,
+    itemToDelete: contaToDelete,
+    editingItem: editingConta,
+    fetchItems: fetchContasDiretas,
+    handleNew: handleNewConta,
+    handleCloseModal,
+    handleEdit: handleEditConta,
+    handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
+  } = useCRUDList('contasDiretas', { entityName: 'conta direta' })
   const [filterNome, setFilterNome] = useState('')
   const [filterDate, setFilterDate] = useState('')
   const [filterDateMode, setFilterDateMode] = useState('unica')
@@ -80,50 +89,12 @@ function ContasDiretas() {
     return sorted
   }, [contasDiretas, filterNome, filterDate, filterDateMode, filterDateStart, filterDateEnd, sortField])
 
-  const fetchContasDiretas = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const contasCollection = collection(db, 'contasDiretas')
-      const contasSnapshot = await getDocs(contasCollection)
-
-      const contasList = contasSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-
-      setContasDiretas(contasList)
-    } catch (err) {
-      let errorMessage = 'Erro ao carregar contas diretas: ' + err.message
-      
-      // Mensagem mais clara para erro de permissões
-      if (err.message && err.message.includes('permission')) {
-        errorMessage = 'Erro de permissão: Configure as regras do Firestore para permitir acesso à coleção "contasDiretas". Consulte o arquivo FIRESTORE_RULES_SETUP.md para instruções.'
-      }
-      
-      setError(errorMessage)
-      console.error('Error fetching contas diretas:', err)
-    } finally {
-      setLoading(false)
-    }
+  const handleDeleteConta = (contaId) => {
+    const conta = contasDiretas.find(c => c.id === contaId)
+    handleDelete(contaId, conta?.nome || '')
   }
 
-  const handleNewConta = () => {
-    setEditingConta(null)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setEditingConta(null)
-  }
-
-  const addMonthsToDate = (dateInput, monthOffset) => {
+const addMonthsToDate = (dateInput, monthOffset) => {
     const d = dateInput
     let year, month, day
     if (typeof d === 'string' && d.includes('-')) {
@@ -194,56 +165,13 @@ function ContasDiretas() {
         }
       }
       await fetchContasDiretas()
-
-      setIsModalOpen(false)
-      setEditingConta(null)
+      handleCloseModal()
     } catch (err) {
       setError('Erro ao salvar conta direta: ' + err.message)
       console.error('Error saving conta direta:', err)
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleEditConta = (contaId) => {
-    const conta = contasDiretas.find(c => c.id === contaId)
-    if (conta) {
-      setEditingConta(conta)
-      setIsModalOpen(true)
-    }
-  }
-
-  const handleDeleteConta = (contaId) => {
-    const conta = contasDiretas.find(c => c.id === contaId)
-    setContaToDelete({ id: contaId, nome: conta?.nome || '' })
-    setIsDeleteModalOpen(true)
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!contaToDelete) return
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const contaRef = doc(db, 'contasDiretas', contaToDelete.id)
-      await deleteDoc(contaRef)
-
-      await fetchContasDiretas()
-
-      setIsDeleteModalOpen(false)
-      setContaToDelete(null)
-    } catch (err) {
-      setError('Erro ao excluir conta direta: ' + err.message)
-      console.error('Error deleting conta direta:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setContaToDelete(null)
   }
 
   const handleToggleSelect = (contaId, e) => {
@@ -281,10 +209,6 @@ function ContasDiretas() {
   const handleCancelBulkDelete = () => {
     setIsBulkDeleteModalOpen(false)
   }
-
-  useEffect(() => {
-    fetchContasDiretas()
-  }, [])
 
   return (
     <>
@@ -456,7 +380,7 @@ function ContasDiretas() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        itemName={contaToDelete?.nome}
+        itemName={contaToDelete?.label}
         itemType="conta direta"
       />
 

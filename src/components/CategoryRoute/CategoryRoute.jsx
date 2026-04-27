@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
-import { CATEGORIA_SIMPLES } from '../../constants/userCategories'
+import { CATEGORIA_CONSULTA, CATEGORIA_SIMPLIFICADO } from '../../constants/userCategories'
 
 export default function CategoryRoute({allow, children}) {
     const {user, categoria, loading} = useAuth()
@@ -19,7 +19,10 @@ export default function CategoryRoute({allow, children}) {
     }
 
     if(!allow.includes(categoria)) {
-        const fallback = categoria === CATEGORIA_SIMPLES ? '/consulta-simples' : '/projetos'
+        const fallback =
+            categoria === CATEGORIA_CONSULTA || categoria === CATEGORIA_SIMPLIFICADO
+                ? '/consulta-simples'
+                : '/projetos'
         return <Navigate to={fallback} replace/>
     }
 

@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.production
+
+# Firebase service account key — contains credentials, never commit this
+scripts/serviceAccount.json

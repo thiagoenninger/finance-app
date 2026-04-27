@@ -7,7 +7,7 @@ import {
 } from "firebase/auth";
 import { auth, db } from "../firebase/firebase";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { CATEGORIA_SIMPLES } from "../constants/userCategories";
+import { CATEGORIA_CONSULTA } from "../constants/userCategories";
 
 export async function loginWithEmail(email, password) {
   await setPersistence(auth, browserSessionPersistence);
@@ -38,7 +38,7 @@ export async function ensureUsuarioDocument(firebaseUser) {
       email: firebaseUser.email ?? "",
       nome: "",
       criadoEm: serverTimestamp(),
-      categoria: CATEGORIA_SIMPLES,
+      categoria: CATEGORIA_CONSULTA,
     });
   }
 }

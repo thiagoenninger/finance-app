@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import DeleteConfirmation from '../../components/DeleteConfirmation/DeleteConfirmation'
@@ -10,17 +10,27 @@ import './style.css'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, where, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
 import { formatCurrencyBRL, formatDateBR, toDateInputString } from '../../utils/format'
+import { useCRUDList } from '../../hooks/useCRUDList'
+import { useAuth } from '../../context/useAuth'
 
 function Pagamentos() {
-  const [pagamentos, setPagamentos] = useState([])
-
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [pagamentoToDelete, setPagamentoToDelete] = useState(null)
-  const [editingPagamento, setEditingPagamento] = useState(null)
+  const { isSimplificado } = useAuth()
+  const {
+    items: pagamentos,
+    loading, setLoading,
+    error, setError,
+    isModalOpen,
+    isDeleteModalOpen, setIsDeleteModalOpen,
+    itemToDelete: pagamentoToDelete, setItemToDelete: setPagamentoToDelete,
+    editingItem: editingPagamento,
+    fetchItems: fetchPagamentos,
+    handleNew: handleNewPagamento,
+    handleCloseModal,
+    handleEdit: handleEditPagamento,
+    handleDelete,
+    handleCancelDelete,
+    // handleConfirmDelete not used — pagamentos has custom delete logic
+  } = useCRUDList('pagamentos', { entityName: 'pagamento' })
   const [filterProjetoId, setFilterProjetoId] = useState('')
   const [filterDate, setFilterDate] = useState('')
   const [filterDateMode, setFilterDateMode] = useState('unica')
@@ -41,19 +51,23 @@ function Pagamentos() {
   }, [pagamentos])
 
   const pagamentosFiltrados = useMemo(() => {
-    let list = pagamentos
-  
+    let list = [...pagamentos].sort((a, b) => {
+      const dateA = a.dataPrevistaPagamento ? new Date(a.dataPrevistaPagamento) : new Date(0)
+      const dateB = b.dataPrevistaPagamento ? new Date(b.dataPrevistaPagamento) : new Date(0)
+      return dateB - dateA
+    })
+
     if (filterProjetoId) {
       list = list.filter((p) => p.projetoId === filterProjetoId)
     }
-  
+
     if (filterDateMode === 'unica' && filterDate) {
       list = list.filter((p) => {
         const dataStr = toDateInputString(p.dataPrevistaPagamento)
         return dataStr === filterDate
       })
     }
-  
+
     if (filterDateMode === 'periodo' && filterDateStart && filterDateEnd) {
       list = list.filter((p) => {
         const dataStr = toDateInputString(p.dataPrevistaPagamento)
@@ -61,52 +75,14 @@ function Pagamentos() {
         return dataStr >= filterDateStart && dataStr <= filterDateEnd
       })
     }
-  
+
     return list
   }, [pagamentos, filterProjetoId, filterDate, filterDateMode, filterDateStart, filterDateEnd])
 
 
-  const fetchPagamentos = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const pagamentosCollection = collection(db, 'pagamentos')
-      const pagamentosSnapshot = await getDocs(pagamentosCollection)
-
-      const pagamentosList = pagamentosSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-
-      // Ordenar por data de pagamento (mais recente primeiro)
-      pagamentosList.sort((a, b) => {
-        const dateA = a.dataPrevistaPagamento ? new Date(a.dataPrevistaPagamento) : new Date(0)
-        const dateB = b.dataPrevistaPagamento ? new Date(b.dataPrevistaPagamento) : new Date(0)
-        return dateB - dateA
-      })
-
-      setPagamentos(pagamentosList)
-    } catch (err) {
-      setError('Erro ao carregar pagamentos: ' + err.message)
-      console.error('Error fetching pagamentos:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNewPagamento = () => {
-    setEditingPagamento(null)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setEditingPagamento(null)
+  const handleDeletePagamento = (pagamentoId) => {
+    const pagamento = pagamentos.find(p => p.id === pagamentoId)
+    handleDelete(pagamentoId, `${pagamento?.projetoNome || ''} - ${pagamento?.rubricaNome || ''}`)
   }
 
   const handleSavePagamento = async (pagamentoData, isEditMode) => {
@@ -155,32 +131,13 @@ function Pagamentos() {
         })
       }
       await fetchPagamentos()
-
-      setIsModalOpen(false)
-      setEditingPagamento(null)
+      handleCloseModal()
     } catch (err) {
       setError('Erro ao salvar pagamento: ' + err.message)
       console.error('Error saving pagamento:', err)
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleEditPagamento = (pagamentoId) => {
-    const pagamento = pagamentos.find(p => p.id === pagamentoId)
-    if (pagamento) {
-      setEditingPagamento(pagamento)
-      setIsModalOpen(true)
-    }
-  }
-
-  const handleDeletePagamento = (pagamentoId) => {
-    const pagamento = pagamentos.find(p => p.id === pagamentoId)
-    setPagamentoToDelete({ 
-      id: pagamentoId, 
-      identificacao: `${pagamento?.projetoNome || ''} - ${pagamento?.rubricaNome || ''}` 
-    })
-    setIsDeleteModalOpen(true)
   }
 
   const handleConfirmDelete = async () => {
@@ -190,17 +147,12 @@ function Pagamentos() {
       setLoading(true)
       setError(null)
 
-      // Buscar o pagamento antes de deletar para atualizar o saldo
       const pagamentoRef = doc(db, 'pagamentos', pagamentoToDelete.id)
       const pagamentoSnap = await getDoc(pagamentoRef)
-      
+
       if (pagamentoSnap.exists()) {
         const pagamentoData = pagamentoSnap.data()
-        
-        // Deletar o pagamento
         await deleteDoc(pagamentoRef)
-
-        // Atualizar saldo da rubrica
         if (pagamentoData.projetoId && pagamentoData.rubricaId !== null && pagamentoData.rubricaId !== undefined) {
           await updateRubricaSaldoAfterDelete(pagamentoData.projetoId, pagamentoData.rubricaId)
         }
@@ -209,7 +161,6 @@ function Pagamentos() {
       }
 
       await fetchPagamentos()
-
       setIsDeleteModalOpen(false)
       setPagamentoToDelete(null)
     } catch (err) {
@@ -271,11 +222,6 @@ function Pagamentos() {
     }
   }
 
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setPagamentoToDelete(null)
-  }
-
   const handleOpenBaixa = (pagamento) => {
     setPagamentoToBaixa(pagamento)
     setIsBaixaModalOpen(true)
@@ -291,9 +237,42 @@ function Pagamentos() {
     handleCloseBaixaModal()
   }
 
-  useEffect(() => {
-    fetchPagamentos()
-  }, [])
+  if (isSimplificado) {
+    return (
+      <>
+        {error && (
+          <div style={{
+            padding: '1rem',
+            margin: '1rem',
+            backgroundColor: '#fee',
+            color: '#c00',
+            borderRadius: '8px',
+          }}>
+            {error}
+            <button onClick={() => setError(null)} style={{marginLeft: '1rem'}}>Fechar</button>
+          </div>
+        )}
+        <div className="pagamentos-container">
+          <div className="pagamentos-header">
+            <div className="pagamentos-header-content">
+              <div className="pagamentos-header-text">
+                <h1>Pagamentos</h1>
+                <p>Registre um novo pagamento</p>
+              </div>
+              <Button label="Novo Pagamento" onClick={handleNewPagamento} disabled={loading} />
+            </div>
+          </div>
+        </div>
+        <NewPagamento
+          key={editingPagamento?.id || 'new-pagamento'}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSave={handleSavePagamento}
+          editingPagamento={editingPagamento}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -313,7 +292,7 @@ function Pagamentos() {
       </div>
     )}
 
-    
+
       <div className="pagamentos-container">
         {loading && (
         <div style={{ 
@@ -470,7 +449,7 @@ function Pagamentos() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        itemName={pagamentoToDelete?.identificacao}
+        itemName={pagamentoToDelete?.label}
         itemType="pagamento"
       />
 

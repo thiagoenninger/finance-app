@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Trash2 } from 'lucide-react'
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
-import { formatCurrencyBRL, parseValorBRL } from '../../utils/format'
+import { formatCurrencyBRL, parseValorBRL, calculateRubricasTotal } from '../../utils/format'
 import './Project.css'
 import * as XLSX from 'xlsx'
 import { FileSpreadsheet, Upload } from 'lucide-react'
@@ -268,15 +268,7 @@ export default function Project() {
     navigate('/projetos')
   }
 
-  const calculateValorTotal = () => {
-    const total = formData.rubricas.reduce((sum, rubrica) => {
-      const valor = Number(rubrica.valorAprovado) || 0
-      return sum + valor
-    }, 0)
-    return Math.round(total * 100) / 100
-  }
-
-  const handleManualRubricaChange = (e) => {
+const handleManualRubricaChange = (e) => {
     const { name, value } = e.target
     setManualRubrica(prev => ({
       ...prev,
@@ -599,7 +591,7 @@ export default function Project() {
             <div className="rubricas-header">
               <h3>Rubricas ({formData.rubricas.length} {formData.rubricas.length === 1 ? 'rubrica' : 'rubricas'})</h3>
               <div className="valor-total">
-                <strong>Valor Total: {formatCurrencyBRL(calculateValorTotal())}</strong>
+                <strong>Valor Total: {formatCurrencyBRL(calculateRubricasTotal(formData.rubricas))}</strong>
               </div>
             </div>
             <div className="rubricas-table-wrapper">

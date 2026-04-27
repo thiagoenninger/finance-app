@@ -1,61 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import Button from '../../components/Button/Button'
 import DeleteConfirmation from '../../components/DeleteConfirmation/DeleteConfirmation'
 import NewFornecedor from './NewFornecedor'
 import './style.css'
 
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc} from 'firebase/firestore'
+import { collection, addDoc, updateDoc, doc } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
+import { useCRUDList } from '../../hooks/useCRUDList'
 
 function Fornecedores() {
-  const [fornecedores, setFornecedores] = useState([])
+  const {
+    items: fornecedores,
+    loading, setLoading,
+    error, setError,
+    isModalOpen,
+    isDeleteModalOpen,
+    itemToDelete: fornecedorToDelete,
+    editingItem: editingFornecedor,
+    fetchItems: fetchFornecedores,
+    handleNew: handleNewFornecedor,
+    handleCloseModal,
+    handleEdit: handleEditFornecedor,
+    handleDelete,
+    handleConfirmDelete,
+    handleCancelDelete,
+  } = useCRUDList('fornecedores', { entityName: 'fornecedor' })
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [fornecedorToDelete, setFornecedorToDelete] = useState(null)
-  const [editingFornecedor, setEditingFornecedor] = useState(null)
-
-  const fetchFornecedores = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      if (!db) {
-        throw new Error('Firebase não inicializado')
-      }
-
-      const fornecedoresCollection = collection(db, 'fornecedores')
-      const fornecedorSnapshot = await getDocs(fornecedoresCollection)
-
-      const fornecedoresList = []
-      fornecedorSnapshot.forEach((doc) => {
-        fornecedoresList.push({
-          id: doc.id,
-          ...doc.data()
-        })
-      })
-
-      setFornecedores(fornecedoresList)
-    } catch (err) {
-      setError('Erro ao carregar fornecedores: ' + err.message)
-      console.error('Error fetching fornecedores:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleNewFornecedor = () => {
-    setEditingFornecedor(null)
-    setIsModalOpen(true)
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setEditingFornecedor(null)
+  const handleDeleteFornecedor = (fornecedorId) => {
+    const fornecedor = fornecedores.find(f => f.id === fornecedorId)
+    handleDelete(fornecedorId, fornecedor?.razaoSocial || '')
   }
 
   const handleSaveFornecedor = async (fornecedorData, isEditMode) => {
@@ -64,7 +38,6 @@ function Fornecedores() {
       setError(null)
 
       if (isEditMode) {
-        //update existing fornecedor
         const fornecedorRef = doc(db, 'fornecedores', fornecedorData.id)
         await updateDoc(fornecedorRef, {
           razaoSocial: fornecedorData.razaoSocial,
@@ -78,7 +51,6 @@ function Fornecedores() {
           updatedAt: new Date()
         })
       } else {
-        //create new fornecedor
         await addDoc(collection(db, 'fornecedores'), {
           razaoSocial: fornecedorData.razaoSocial,
           tipoDocumento: fornecedorData.tipoDocumento,
@@ -93,9 +65,7 @@ function Fornecedores() {
         })
       }
       await fetchFornecedores()
-
-      setIsModalOpen(false)
-      setEditingFornecedor(null)
+      handleCloseModal()
     } catch (err) {
       setError('Erro ao salvar fornecedor: ' + err.message)
       console.error('Error saving fornecedor:', err)
@@ -103,51 +73,6 @@ function Fornecedores() {
       setLoading(false)
     }
   }
-
-  const handleEditFornecedor = (fornecedorId) => {
-    const fornecedor = fornecedores.find(f => f.id === fornecedorId)
-    if (fornecedor) {
-      setEditingFornecedor(fornecedor)
-      setIsModalOpen(true)
-    }
-  }
-
-  const handleDeleteFornecedor = (fornecedorId) => {
-    const fornecedor = fornecedores.find(f => f.id === fornecedorId)
-    setFornecedorToDelete({ id: fornecedorId, razaoSocial: fornecedor?.razaoSocial || '' })
-    setIsDeleteModalOpen(true)
-  }
-
-  const handleConfirmDelete = async () => {
-    if (!fornecedorToDelete) return
-
-    try {
-      setLoading(true)
-      setError(null)
-
-      const fornecedorRef = doc(db, 'fornecedores', fornecedorToDelete.id)
-      await deleteDoc(fornecedorRef)
-
-      await fetchFornecedores()
-
-      setIsDeleteModalOpen(false)
-      setFornecedorToDelete(null)
-    } catch (err) {
-      setError('Erro ao excluir fornecedor: ' + err.message)
-      console.error('Error deleting fornecedor:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleCancelDelete = () => {
-    setIsDeleteModalOpen(false)
-    setFornecedorToDelete(null)
-  }
-
-  useEffect(() => {
-    fetchFornecedores()
-  }, [])
 
   return (
     <>
@@ -257,7 +182,7 @@ function Fornecedores() {
         isOpen={isDeleteModalOpen}
         onClose={handleCancelDelete}
         onConfirm={handleConfirmDelete}
-        itemName={fornecedorToDelete?.razaoSocial}
+        itemName={fornecedorToDelete?.label}
         itemType="fornecedor"
       />
     </>

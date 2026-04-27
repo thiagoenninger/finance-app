@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button/Button";
 import "./style.css";
 
 import { generateRelatoriosReportRows } from "./relatoriosReport";
@@ -12,6 +14,7 @@ import autoTable from "jspdf-autotable";
 import { formatCurrencyBRLReport } from "../../utils/format";
 
 function Relatorios() {
+  const navigate = useNavigate();
   const [filterPronac, setFilterPronac] = useState('');
   const [filterDate, setFilterDate] = useState('');
   const [filterDateMode, setFilterDateMode] = useState('unica');
@@ -116,8 +119,11 @@ function Relatorios() {
   return (
     <div className="relatorios-page">
       <div className="relatorios-page-header">
-        <h1>Relatórios</h1>
-        <p>Exporte relatórios dos pagamentos dos projetos ou contas diretas</p>
+        <div className="relatorios-page-header-text">
+          <h1>Relatórios</h1>
+          <p>Exporte relatórios dos pagamentos dos projetos ou contas diretas</p>
+        </div>
+        <Button label="Relatório Detalhado" onClick={() => navigate('/relatorios/detalhado')} showIcon={false} />
       </div>
 
       <div className="relatorios-filters">

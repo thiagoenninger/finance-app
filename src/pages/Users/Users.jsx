@@ -4,21 +4,24 @@ import { Pencil, Check, X } from "lucide-react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import {
-  CATEGORIA_SIMPLES,
-  CATEGORIA_COMPLETO,
+  CATEGORIA_CONSULTA,
+  CATEGORIA_SIMPLIFICADO,
+  CATEGORIA_FINANCEIRO,
+  CATEGORIA_ADMINISTRADOR,
+  CATEGORIAS_USUARIO,
   normalizeCategoria,
 } from "../../constants/userCategories";
 import "./style.css";
 
 export default function Users() {
-  const { user } = useAuth();
+  const { user, isAdministrador } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingNome, setEditingNome] = useState("");
   const [savingId, setSavingId] = useState(null);
-  const [editingCategoria, setEditingCategoria] = useState(CATEGORIA_SIMPLES);
+  const [editingCategoria, setEditingCategoria] = useState(CATEGORIA_CONSULTA);
 
   const fetchUsuarios = async () => {
     setLoading(true);
@@ -49,7 +52,7 @@ export default function Users() {
   const handleCancel = () => {
     setEditingId(null);
     setEditingNome("");
-    setEditingCategoria(CATEGORIA_SIMPLES);
+    setEditingCategoria(CATEGORIA_CONSULTA);
   };
 
   const handleSave = async (uid) => {
@@ -78,7 +81,7 @@ export default function Users() {
       );
       setEditingId(null);
       setEditingNome("");
-      setEditingCategoria(CATEGORIA_SIMPLES);
+      setEditingCategoria(CATEGORIA_CONSULTA);
     } catch (err) {
       console.error("Erro ao salvar nome: ", err);
       setError("Não foi possível salvar nome. Tente novamente.");
@@ -145,7 +148,7 @@ export default function Users() {
               usuarios.map((usuario) => {
                 const isEditing = editingId === usuario.id;
                 const isSavingThisRow = savingId === usuario.id;
-                const isOwnRow = usuario.id === user?.uid;
+                const canEdit = isAdministrador;
                 return (
                   <tr key={usuario.id}>
                     <td>
@@ -174,28 +177,17 @@ export default function Users() {
                           <legend className="users-categoria-legend">
                             Tipo de usuário
                           </legend>
-                          <label className="users-categoria-label">
-                            <input
-                              type="radio"
-                              name={`categoria-${usuario.id}`}
-                              checked={editingCategoria === CATEGORIA_SIMPLES}
-                              onChange={() =>
-                                setEditingCategoria(CATEGORIA_SIMPLES)
-                              }
-                            />
-                            Simples
-                          </label>
-                          <label className="users-categoria-label">
-                            <input
-                              type="radio"
-                              name={`categoria-${usuario.id}`}
-                              checked={editingCategoria === CATEGORIA_COMPLETO}
-                              onChange={() =>
-                                setEditingCategoria(CATEGORIA_COMPLETO)
-                              }
-                            />
-                            Completo
-                          </label>
+                          {CATEGORIAS_USUARIO.map((cat) => (
+                            <label key={cat} className="users-categoria-label">
+                              <input
+                                type="radio"
+                                name={`categoria-${usuario.id}`}
+                                checked={editingCategoria === cat}
+                                onChange={() => setEditingCategoria(cat)}
+                              />
+                              {cat}
+                            </label>
+                          ))}
                         </fieldset>
                       ) : (
                         <span
@@ -226,7 +218,7 @@ export default function Users() {
                               <X size={16} />
                             </button>
                           </>
-                        ) : isOwnRow ? (
+                        ) : canEdit ? (
                           <button
                             className="action-button action-button-edit"
                             onClick={() => handleEdit(usuario)}

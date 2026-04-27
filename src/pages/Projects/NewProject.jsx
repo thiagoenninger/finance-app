@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { X, Upload, FileSpreadsheet } from 'lucide-react'
 import * as XLSX from 'xlsx'
-import { formatCurrencyBRL, parseValorBRL } from '../../utils/format'
+import { formatCurrencyBRL, parseValorBRL, calculateRubricasTotal } from '../../utils/format'
 import './newProject.css'
 
 function NewProject({ isOpen, onClose, onSave, editingProject = null, proponentes = [] }) {
@@ -198,15 +198,7 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
     onClose()
   }
 
-  const calculateValorTotal = () => {
-    const total = rubricasPreview.reduce((sum, rubrica) => {
-      const valor = Number(rubrica.valorAprovado) || 0
-      return sum + valor
-    }, 0)
-    return Math.round(total * 100) / 100
-  }
-
-  if (!isOpen) return null
+if (!isOpen) return null
 
   return (
     <div className="modal-overlay" onClick={handleCancel}>
@@ -330,7 +322,7 @@ function NewProject({ isOpen, onClose, onSave, editingProject = null, proponente
               <div className="rubricas-preview-header">
                 <h3>Pré-visualização das Rubricas ({rubricasPreview.length} {rubricasPreview.length === 1 ? 'rubrica' : 'rubricas'})</h3>
                 <div className="valor-total-preview">
-                  <strong>Valor Total: {formatCurrencyBRL(calculateValorTotal())}</strong>
+                  <strong>Valor Total: {formatCurrencyBRL(calculateRubricasTotal(rubricasPreview))}</strong>
                 </div>
               </div>
               <div className="rubricas-table-wrapper">

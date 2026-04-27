@@ -8,8 +8,10 @@ import {
   ensureUsuarioDocument,
 } from "../services/authServices";
 import {
-  CATEGORIA_SIMPLES,
-  CATEGORIA_COMPLETO,
+  CATEGORIA_CONSULTA,
+  CATEGORIA_SIMPLIFICADO,
+  CATEGORIA_FINANCEIRO,
+  CATEGORIA_ADMINISTRADOR,
   normalizeCategoria,
 } from "../constants/userCategories";
 
@@ -41,7 +43,7 @@ export function AuthProvider({ children }) {
       } catch (error) {
         console.error("Auth bootstrap error: ", error);
         setAuthError("Erro ao carregar perfil. Recarregue a página.")
-        setPerfil({nome: "", categoria: CATEGORIA_SIMPLES })
+        setPerfil({nome: "", categoria: CATEGORIA_CONSULTA })
       } finally {
         setUser(firebaseUser);
       }
@@ -54,12 +56,14 @@ export function AuthProvider({ children }) {
 
   const loading = user === undefined || (user && perfil === undefined);
   const categoria = perfil?.categoria || null;
-  const isSimples = categoria === CATEGORIA_SIMPLES;
-  const isCompleto = categoria === CATEGORIA_COMPLETO;
+  const isConsulta = categoria === CATEGORIA_CONSULTA;
+  const isSimplificado = categoria === CATEGORIA_SIMPLIFICADO;
+  const isFinanceiro = categoria === CATEGORIA_FINANCEIRO;
+  const isAdministrador = categoria === CATEGORIA_ADMINISTRADOR;
 
   const value = useMemo(() => ({
-  user, perfil, categoria, isSimples, isCompleto, loading, login, logout, authError
-}), [user, perfil, categoria, isSimples, isCompleto, loading, authError])
+  user, perfil, categoria, isConsulta, isSimplificado, isFinanceiro, isAdministrador, loading, login, logout, authError
+}), [user, perfil, categoria, isConsulta, isSimplificado, isFinanceiro, isAdministrador, loading, authError])
 
   return (
     <AuthContext.Provider

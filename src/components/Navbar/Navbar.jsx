@@ -8,27 +8,44 @@ import {
 } from 'lucide-react'
 
 import { useAuth } from '../../context/useAuth'
-import { CATEGORIA_SIMPLES } from '../../constants/userCategories'
+import {
+  CATEGORIA_CONSULTA,
+  CATEGORIA_SIMPLIFICADO,
+  CATEGORIA_FINANCEIRO,
+  CATEGORIA_ADMINISTRADOR,
+} from '../../constants/userCategories'
 
-const COMPLETE_LINKS = [
-  { to: '/users', icon: Users, label: 'Usuários' },
-  { to: '/proponentes', icon: Building2, label: 'Proponentes' },
-  { to: '/fornecedores', icon: Truck, label: 'Fornecedores' },
-  { to: '/projetos', icon: FolderOpenDot, label: 'Projetos' },
-  { to: '/pagamentos', icon: CreditCard, label: 'Pagamentos' },
-  { to: '/contas-diretas', icon: Receipt, label: 'Contas Diretas' },
-  { to: '/relatorios', icon: FileText, label: 'Relatórios' },
-]
-
-const SIMPLE_LINKS = [
-  { to: '/consulta-simples', icon: Search, label: 'Consulta Simples' },
-]
+const LINKS_BY_CATEGORIA = {
+  [CATEGORIA_CONSULTA]: [
+    { to: '/consulta-simples', icon: Search, label: 'Consulta Simples' },
+  ],
+  [CATEGORIA_SIMPLIFICADO]: [
+    { to: '/consulta-simples', icon: Search, label: 'Consulta Simples' },
+    { to: '/pagamentos', icon: CreditCard, label: 'Pagamentos' },
+  ],
+  [CATEGORIA_FINANCEIRO]: [
+    { to: '/fornecedores', icon: Truck, label: 'Fornecedores' },
+    { to: '/projetos', icon: FolderOpenDot, label: 'Projetos' },
+    { to: '/pagamentos', icon: CreditCard, label: 'Pagamentos' },
+    { to: '/contas-diretas', icon: Receipt, label: 'Contas Diretas' },
+    { to: '/relatorios', icon: FileText, label: 'Relatórios' },
+  ],
+  [CATEGORIA_ADMINISTRADOR]: [
+    { to: '/users', icon: Users, label: 'Usuários' },
+    { to: '/proponentes', icon: Building2, label: 'Proponentes' },
+    { to: '/fornecedores', icon: Truck, label: 'Fornecedores' },
+    { to: '/projetos', icon: FolderOpenDot, label: 'Projetos' },
+    { to: '/pagamentos', icon: CreditCard, label: 'Pagamentos' },
+    { to: '/contas-diretas', icon: Receipt, label: 'Contas Diretas' },
+    { to: '/relatorios', icon: FileText, label: 'Relatórios' },
+  ],
+}
 
 function Navbar() {
   const { user, perfil, categoria, logout } = useAuth()
   const navigate = useNavigate()
 
-  const links = categoria === CATEGORIA_SIMPLES ? SIMPLE_LINKS : COMPLETE_LINKS
+  const links = LINKS_BY_CATEGORIA[categoria] || []
   const displayName = perfil?.nome?.trim() || user?.email?.split('@')[0] || 'Usuário'
 
   const handleLogout = async () => {

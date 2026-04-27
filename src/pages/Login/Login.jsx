@@ -6,12 +6,10 @@ import AppIcon from "../../assets/icons/app-icon.svg";
 import { useAuth } from "../../context/useAuth";
 import { getAuthErrorMessage } from "../../context/authErrors";
 import { sendResetPasswordEmail } from "../../services/authServices";
-import { CATEGORIA_SIMPLES } from "../../constants/userCategories";
- 
 export default function Login() {
-  const { login, user, categoria, loading } = useAuth();
+  const { login, user, isConsulta, isSimplificado, loading } = useAuth();
   const location = useLocation();
- 
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false)
@@ -22,8 +20,8 @@ export default function Login() {
   const [resetEmail, setResetEmail] = useState("")
   const [resetStatus, setResetStatus] = useState("idle")
   const [resetError, setResetError] = useState("")
- 
-  const defaultPath = categoria === CATEGORIA_SIMPLES ? '/consulta-simples' : '/projetos'
+
+  const defaultPath = (isConsulta || isSimplificado) ? '/consulta-simples' : '/projetos'
   const from = location.state?.from?.pathname || defaultPath
  
   if (user && !loading) {
