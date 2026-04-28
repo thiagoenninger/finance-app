@@ -12,7 +12,7 @@ export function formatCurrencyBRL(value) {
         style: 'currency',
         currency: 'BRL',
         minimumFractionDigits: 2,
-    }).format(num)
+    }).format(num).replace(/ /g, ' ')
 }
 
 export function formatCurrencyBRLReport(value) {
@@ -27,7 +27,7 @@ export function formatCurrencyBRLReport(value) {
     style: 'currency',
     currency: 'BRL',
     minimumFractionDigits: 2,
-  }).format(num)
+  }).format(num).replace(/ /g, ' ')
 }
 
 /* Exibir data em pt-BR */

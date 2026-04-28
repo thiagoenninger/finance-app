@@ -120,6 +120,7 @@ export async function generateRelatorioDetalhadoRows({
         rubrica: pagamento.rubricaNome || "-",
         documentoFornecedor,
         numeroNF: pagamento.numeroNF || "-",
+        dataEmissaoNF: formatDateBR(pagamento.dataEmissaoNF),
         dataPagamento: formatDateBR(baixa.dataPagamento),
         dataPagamentoRaw: dateStr || "",
         numeroPagamento: baixa.numeroPagamento || "-",

@@ -79,6 +79,7 @@ function RelatorioDetalhado() {
         'Rubrica',
         'CNPJ/CPF Fornecedor',
         'Nº NF',
+        'Data Emissão NF',
         'Data Pagamento',
         'Nº Pagamento',
         'Valor Pago',
@@ -89,6 +90,7 @@ function RelatorioDetalhado() {
         row.rubrica,
         row.documentoFornecedor,
         row.numeroNF,
+        row.dataEmissaoNF,
         row.dataPagamento,
         row.numeroPagamento,
         row.valorPago !== '-' ? formatCurrencyBRLReport(row.valorPago) : '-',
@@ -224,6 +226,7 @@ function RelatorioDetalhado() {
                     <th>Rubrica</th>
                     <th>CNPJ/CPF Fornecedor</th>
                     <th>Nº NF</th>
+                    <th>Data Emissão NF</th>
                     <th>Data Pagamento</th>
                     <th>Nº Pagamento</th>
                     <th>Valor Pago</th>
@@ -237,6 +240,7 @@ function RelatorioDetalhado() {
                       <td>{row.rubrica}</td>
                       <td>{row.documentoFornecedor}</td>
                       <td>{row.numeroNF}</td>
+                      <td>{row.dataEmissaoNF}</td>
                       <td>{row.dataPagamento}</td>
                       <td>{row.numeroPagamento}</td>
                       <td>

@@ -94,6 +94,21 @@ function NewPagamento({ isOpen, onClose, onSave, editingPagamento = null }) {
             </div>
 
             <div className="form-field">
+              <label htmlFor="dataEmissaoNF">Data Emissão da NF</label>
+              <div className="date-input-wrapper">
+                <input
+                  type="date"
+                  id="dataEmissaoNF"
+                  name="dataEmissaoNF"
+                  value={formData.dataEmissaoNF}
+                  onChange={handleChange}
+                  required
+                />
+                <Calendar size={18} className="calendar-icon" />
+              </div>
+            </div>
+
+            <div className="form-field">
               <label htmlFor="valor">Valor R$</label>
               <input
                 type="text"
