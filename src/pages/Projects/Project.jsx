@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trash2 } from 'lucide-react'
+import { ArrowLeft, Trash2, Pencil, Check, X } from 'lucide-react'
 import { doc, getDoc, updateDoc, collection, getDocs } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
-import { formatCurrencyBRL, parseValorBRL, calculateRubricasTotal } from '../../utils/format'
+import { formatCurrencyBRL, parseValorBRL, calculateRubricasTotal, getValorEfetivo } from '../../utils/format'
 import './Project.css'
 import * as XLSX from 'xlsx'
 import { FileSpreadsheet, Upload } from 'lucide-react'
@@ -27,6 +27,9 @@ export default function Project() {
 
   const [excelFileName, setExcelFileName] = useState('')
   const [excelError, setExcelError] = useState('')
+
+  const [editingRubricaIdx, setEditingRubricaIdx] = useState(null)
+  const [editingValorInput, setEditingValorInput] = useState('')
   
   const [showManualRubricaForm, setShowManualRubricaForm] = useState(false)
   const [manualRubrica, setManualRubrica] = useState({
@@ -228,12 +231,8 @@ export default function Project() {
       const proponenteNome = proponente ? proponente.nome : ''
 
       const rubricasAtuais = formData.rubricas || []
-      
-      const valorTotal = rubricasAtuais.reduce((sum, rubrica) => {
-        const valor = Number(rubrica.valorAprovado) || 0
-        return sum + valor
-      }, 0)
-      const valorTotalRounded = Math.round(valorTotal * 100) / 100
+
+      const valorTotalRounded = calculateRubricasTotal(rubricasAtuais)
 
       const projetoRef = doc(db, 'projetos', id)
       const updateData = {
@@ -322,17 +321,57 @@ const handleManualRubricaChange = (e) => {
     setError(null)
   }
 
-  const handleDeleteRubrica = (index) => {
-    setFormData(prev => {
-      const novasRubricas = prev.rubricas.filter((_, i) => i !== index)
-      
-      
-      return {
-        ...prev,
-        rubricas: novasRubricas
-      }
-    })
+  const handleStartEditRubrica = (index) => {
+    const rubrica = formData.rubricas[index]
+    setEditingRubricaIdx(index)
+    setEditingValorInput(String(getValorEfetivo(rubrica) ?? ''))
+  }
+
+  const handleCancelEditRubrica = () => {
+    setEditingRubricaIdx(null)
+    setEditingValorInput('')
+  }
+
+  const handleConfirmEditRubrica = async (index) => {
+    const parsed = parseValorBRL(editingValorInput)
+    if (!editingValorInput.trim() || isNaN(parsed) || parsed <= 0) {
+      setError('Digite um valor válido maior que zero')
+      return
+    }
+
+    const rubricasAnteriores = formData.rubricas
+    const novasRubricas = formData.rubricas.map((r, i) =>
+      i === index ? { ...r, valorReadequado: parsed } : r
+    )
+
+    setFormData(prev => ({ ...prev, rubricas: novasRubricas }))
+    setEditingRubricaIdx(null)
+    setEditingValorInput('')
     setError(null)
+
+    try {
+      const projetoRef = doc(db, 'projetos', id)
+      await updateDoc(projetoRef, { rubricas: novasRubricas, valorTotal: calculateRubricasTotal(novasRubricas) })
+    } catch (err) {
+      setFormData(prev => ({ ...prev, rubricas: rubricasAnteriores }))
+      setError('Erro ao salvar valor readequado: ' + err.message)
+    }
+  }
+
+  const handleDeleteRubrica = async (index) => {
+    const rubricasAnteriores = formData.rubricas
+    const novasRubricas = formData.rubricas.filter((_, i) => i !== index)
+
+    setFormData(prev => ({ ...prev, rubricas: novasRubricas }))
+    setError(null)
+
+    try {
+      const projetoRef = doc(db, 'projetos', id)
+      await updateDoc(projetoRef, { rubricas: novasRubricas, valorTotal: calculateRubricasTotal(novasRubricas) })
+    } catch (err) {
+      setFormData(prev => ({ ...prev, rubricas: rubricasAnteriores }))
+      setError('Erro ao deletar rubrica: ' + err.message)
+    }
   }
 
   if (loading) {
@@ -603,30 +642,90 @@ const handleManualRubricaChange = (e) => {
                     <th>Local</th>
                     <th>Tipo de Rubrica</th>
                     <th>Valor Aprovado</th>
+                    <th>Valor Readequado</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {formData.rubricas.map((rubrica, index) => (
-                    <tr key={index}>
-                      <td>{rubrica.produto}</td>
-                      <td>{rubrica.etapa}</td>
-                      <td>{rubrica.local}</td>
-                      <td>{rubrica.tipoRubrica}</td>
-                      <td>{formatCurrencyBRL(rubrica.valorAprovado)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="rubrica-delete-button"
-                          onClick={() => handleDeleteRubrica(index)}
-                          aria-label="Deletar rubrica"
-                          title="Deletar rubrica"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {formData.rubricas.map((rubrica, index) => {
+                    const isEditing = editingRubricaIdx === index
+                    return (
+                      <tr key={index}>
+                        <td>{rubrica.produto}</td>
+                        <td>{rubrica.etapa}</td>
+                        <td>{rubrica.local}</td>
+                        <td>{rubrica.tipoRubrica}</td>
+                        <td>{formatCurrencyBRL(rubrica.valorAprovado)}</td>
+                        <td>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              className="rubrica-edit-input"
+                              value={editingValorInput}
+                              onChange={(e) => setEditingValorInput(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleConfirmEditRubrica(index)
+                                if (e.key === 'Escape') handleCancelEditRubrica()
+                              }}
+                              autoFocus
+                              placeholder="Ex: 1500,00"
+                            />
+                          ) : (
+                            rubrica.valorReadequado != null
+                              ? formatCurrencyBRL(rubrica.valorReadequado)
+                              : <span className="rubrica-readequado-empty">—</span>
+                          )}
+                        </td>
+                        <td>
+                          {isEditing ? (
+                            <div className="rubrica-edit-actions">
+                              <button
+                                type="button"
+                                className="rubrica-icon-button rubrica-confirm-button"
+                                onClick={() => handleConfirmEditRubrica(index)}
+                                aria-label="Confirmar valor readequado"
+                                title="Confirmar"
+                              >
+                                <Check size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                className="rubrica-icon-button rubrica-cancel-button"
+                                onClick={handleCancelEditRubrica}
+                                aria-label="Cancelar edição"
+                                title="Cancelar"
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="rubrica-edit-actions">
+                              <button
+                                type="button"
+                                className="rubrica-icon-button rubrica-edit-button"
+                                onClick={() => handleStartEditRubrica(index)}
+                                aria-label="Editar valor readequado"
+                                title="Editar Valor Readequado"
+                                disabled={editingRubricaIdx !== null}
+                              >
+                                <Pencil size={16} />
+                              </button>
+                              <button
+                                type="button"
+                                className="rubrica-delete-button"
+                                onClick={() => handleDeleteRubrica(index)}
+                                aria-label="Deletar rubrica"
+                                title="Deletar rubrica"
+                                disabled={editingRubricaIdx !== null}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>

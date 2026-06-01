@@ -362,3 +362,75 @@
     transform: translateY(0);
     box-shadow: none;
 }
+
+/* Rubricas inline edit */
+.rubrica-edit-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.rubrica-icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    padding: 0;
+}
+
+.rubrica-icon-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.rubrica-edit-button {
+    color: var(--secondary);
+}
+
+.rubrica-edit-button:hover:not(:disabled) {
+    background-color: rgba(59, 130, 245, 0.1);
+    transform: translateY(-1px);
+}
+
+.rubrica-confirm-button {
+    color: #10b981;
+}
+
+.rubrica-confirm-button:hover {
+    background-color: rgba(16, 185, 129, 0.1);
+    transform: translateY(-1px);
+}
+
+.rubrica-cancel-button {
+    color: #ef4444;
+}
+
+.rubrica-cancel-button:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    transform: translateY(-1px);
+}
+
+.rubrica-edit-input {
+    width: 120px;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--secondary);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background-color: var(--card-background);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 0 0 3px rgba(59, 130, 245, 0.1);
+    outline: none;
+}
+
+.rubrica-readequado-empty {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}

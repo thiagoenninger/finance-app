@@ -14,6 +14,7 @@ function NewPagamento({ isOpen, onClose, onSave, editingPagamento = null }) {
     uploading,
     notaFiscalError,
     saldoError,
+    fornecedoresError,
     isEditMode,
     handleChange,
     handleFornecedorChange,
@@ -57,7 +58,11 @@ function NewPagamento({ isOpen, onClose, onSave, editingPagamento = null }) {
 
           <div className="form-field">
             <label htmlFor="fornecedorId">Fornecedor</label>
-            {fornecedores.length === 0 ? (
+            {fornecedoresError ? (
+              <div className="form-empty-warning form-empty-warning--error">
+                {fornecedoresError}
+              </div>
+            ) : fornecedores.length === 0 ? (
               <div className="form-empty-warning">
                 Não existem Fornecedores registrados no sistema
               </div>

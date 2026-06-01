@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 
 function getDataPrevistaAsString(dataPrevistaPagamento) {
   if (!dataPrevistaPagamento) return null;
@@ -25,23 +25,19 @@ export async function generateRelatoriosReportRows({
 
   if (!pronacNormalized) return [];
 
-  const [pagamentosSnapshot, projetosSnapshot] = await Promise.all([
-    getDocs(collection(db, "pagamentos")),
-    getDocs(collection(db, "projetos")),
-  ]);
+  const pagamentosSnapshot = await getDocs(
+    query(collection(db, "pagamentos"), where("pronac", "==", pronacNormalized))
+  );
 
-  const projetosById = new Map();
-  projetosSnapshot.forEach((doc) => {
-    projetosById.set(doc.id, { id: doc.id, ...doc.data() });
+  let filtered = [];
+  pagamentosSnapshot.forEach((d) => {
+    filtered.push({ id: d.id, ...d.data() });
   });
 
-  const pagamentosList = [];
-  pagamentosSnapshot.forEach((doc) => {
-    pagamentosList.push({ id: doc.id, ...doc.data() });
-  });
-
-  let filtered = pagamentosList.filter(
-    (p) => (p.pronac || "").trim() === pronacNormalized
+  const projetoIds = [...new Set(filtered.map((p) => p.projetoId).filter(Boolean))];
+  const projetosDocs = await Promise.all(projetoIds.map((id) => getDoc(doc(db, "projetos", id))));
+  const projetosById = new Map(
+    projetosDocs.filter((d) => d.exists()).map((d) => [d.id, { id: d.id, ...d.data() }])
   );
 
   // Filtragem por data é opcional conforme o modo selecionado.
@@ -88,10 +84,11 @@ export async function generateRelatoriosReportRows({
     return {
       pronac: p.pronac || "-",
       rubrica: p.rubricaNome || "-",
-      valorRubrica:
-        rubrica && rubrica.valorAprovado !== undefined
-          ? Number(rubrica.valorAprovado)
-          : "-",
+      valorRubrica: (() => {
+        if (!rubrica) return "-"
+        const val = rubrica.valorReadequado != null ? rubrica.valorReadequado : rubrica.valorAprovado
+        return val !== undefined ? Number(val) : "-"
+      })(),
       fornecedor: p.fornecedorNome || "-",
       numeroNF: p.numeroNF || "-",
       valorNotaFiscal: p.valor !== undefined ? p.valor : "-",

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
-import { formatCurrencyBRL } from '../../utils/format'
+import { formatCurrencyBRL, getValorEfetivo } from '../../utils/format'
 import './style.css'
 
 export default function ConsultaSimples() {
@@ -93,7 +93,7 @@ export default function ConsultaSimples() {
     const rubrica = rubricasDisponiveis.find((r) => r.id === value)
     if (!rubrica) return
 
-    await carregarSaldo(selectedProjeto.id, value, rubrica.valorAprovado)
+    await carregarSaldo(selectedProjeto.id, value, getValorEfetivo(rubrica))
   }
 
   return (
@@ -146,8 +146,12 @@ export default function ConsultaSimples() {
         {selectedRubrica && (
           <div className="consulta-simples-results">
             <div className="consulta-simples-result-box">
-              <span className="label">Valor Total</span>
-              <strong>{formatCurrencyBRL(selectedRubrica.valorAprovado)}</strong>
+              <span className="label">
+                {selectedRubrica.valorReadequado != null ? 'Valor Readequado' : 'Valor Aprovado'}
+              </span>
+              <strong>
+                {formatCurrencyBRL(getValorEfetivo(selectedRubrica))}
+              </strong>
             </div>
 
             <div className="consulta-simples-result-box">

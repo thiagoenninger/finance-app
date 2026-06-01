@@ -105,11 +105,15 @@ export function formatCNPJ(value) {
   return value
 }
 
-/* Soma o valorAprovado de um array de rubricas */
+/* Retorna o valor efetivo de uma rubrica: valorReadequado quando definido, caso contrário valorAprovado */
+
+export function getValorEfetivo(rubrica) {
+  return rubrica.valorReadequado != null ? rubrica.valorReadequado : rubrica.valorAprovado
+}
+
+/* Soma o valor efetivo (valorReadequado ?? valorAprovado) de um array de rubricas */
 
 export function calculateRubricasTotal(rubricas = []) {
-  const total = rubricas.reduce((sum, rubrica) => {
-    return sum + (Number(rubrica.valorAprovado) || 0)
-  }, 0)
+  const total = rubricas.reduce((sum, rubrica) => sum + (Number(getValorEfetivo(rubrica)) || 0), 0)
   return Math.round(total * 100) / 100
 }

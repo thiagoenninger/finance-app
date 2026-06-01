@@ -47,13 +47,12 @@ export async function generateRelatorioDetalhadoRows({
   if (!pronacNormalized) return [];
 
   // ── 1. Fetch pagamentos for this PRONAC ───────────────────────────────────
-  const pagamentosSnap = await getDocs(collection(db, "pagamentos"));
+  const pagamentosSnap = await getDocs(
+    query(collection(db, "pagamentos"), where("pronac", "==", pronacNormalized))
+  );
   const pagamentos = [];
   pagamentosSnap.forEach((d) => {
-    const data = d.data();
-    if ((data.pronac || "").trim() === pronacNormalized) {
-      pagamentos.push({ id: d.id, ...data });
-    }
+    pagamentos.push({ id: d.id, ...d.data() });
   });
 
   if (pagamentos.length === 0) return [];

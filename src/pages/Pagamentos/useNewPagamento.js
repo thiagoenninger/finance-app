@@ -3,7 +3,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '../../firebase/firebase'
 import { collection, getDocs, doc, getDoc, updateDoc, query, where, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../firebase/firebase'
-import { parseValorBRL } from '../../utils/format'
+import { parseValorBRL, getValorEfetivo } from '../../utils/format'
 
 const EMPTY_FORM = {
   projetoId: '',
@@ -59,6 +59,7 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
   const [formData, setFormData] = useState(() => buildInitialFormData(editingPagamento))
   const [notaFiscalError, setNotaFiscalError] = useState('')
   const [saldoError, setSaldoError] = useState('')
+  const [fornecedoresError, setFornecedoresError] = useState('')
 
   useEffect(() => {
     if (!isOpen) return
@@ -81,6 +82,7 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
     }
     setNotaFiscalError('')
     setSaldoError('')
+    setFornecedoresError('')
     // Intencionalmente usa editingPagamento?.id (não o objeto inteiro) como dependência.
     // O formulário só deve ser reiniciado quando um novo pagamento é aberto para edição.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -101,10 +103,12 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
   const fetchFornecedores = async () => {
     try {
       if (!db) return
+      setFornecedoresError('')
       const snapshot = await getDocs(collection(db, 'fornecedores'))
       setFornecedores(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
     } catch (err) {
       console.error('Error fetching fornecedores:', err)
+      setFornecedoresError('Não foi possível carregar os fornecedores. Você pode não ter permissão para acessá-los.')
     }
   }
 
@@ -162,7 +166,7 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
         isEditMode ? editingPagamento?.id : null
       )
 
-      setSaldoDisponivel((Number(rubrica.valorAprovado) || 0) - totalPago)
+      setSaldoDisponivel((Number(getValorEfetivo(rubrica)) || 0) - totalPago)
     } catch (err) {
       console.error('Error calculating saldo:', err)
       setSaldoDisponivel(null)
@@ -182,12 +186,12 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
       const rubricaIndex = parseInt(rubricaId)
       if (!rubricas[rubricaIndex]) return
 
-      const valorAprovado = Number(rubricas[rubricaIndex].valorAprovado) || 0
+      const r = rubricas[rubricaIndex]
       const totalPago = await fetchTotalPago(projetoId, String(rubricaId))
 
       rubricas[rubricaIndex] = {
-        ...rubricas[rubricaIndex],
-        saldo: Math.round((valorAprovado - totalPago) * 100) / 100,
+        ...r,
+        saldo: Math.round(((Number(getValorEfetivo(r)) || 0) - totalPago) * 100) / 100,
       }
       await updateDoc(projetoRef, { rubricas, updatedAt: serverTimestamp() })
     } catch (err) {
@@ -308,6 +312,7 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
     setSaldoDisponivel(null)
     setNotaFiscalError('')
     setSaldoError('')
+    setFornecedoresError('')
   }
 
   const handleCancel = () => {
@@ -382,6 +387,7 @@ export function useNewPagamento({ isOpen, onClose, onSave, editingPagamento }) {
     uploading,
     notaFiscalError,
     saldoError,
+    fornecedoresError,
     isEditMode,
     // handlers
     handleChange,

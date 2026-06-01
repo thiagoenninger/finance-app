@@ -140,7 +140,7 @@ describe('toDateInputString', () => {
 
 // ── calculateRubricasTotal ────────────────────────────────────────────────────
 describe('calculateRubricasTotal', () => {
-  it('sums valorAprovado across rubricas', () => {
+  it('sums valorAprovado when no valorReadequado is set', () => {
     const rubricas = [
       { valorAprovado: 1000 },
       { valorAprovado: 500.50 },
@@ -165,5 +165,30 @@ describe('calculateRubricasTotal', () => {
   it('ignores non-numeric valorAprovado values', () => {
     const rubricas = [{ valorAprovado: 300 }, { valorAprovado: 'abc' }]
     expect(calculateRubricasTotal(rubricas)).toBeCloseTo(300)
+  })
+
+  it('uses valorReadequado instead of valorAprovado when both are present', () => {
+    const rubricas = [{ valorAprovado: 1000, valorReadequado: 1500 }]
+    expect(calculateRubricasTotal(rubricas)).toBeCloseTo(1500)
+  })
+
+  it('falls back to valorAprovado when valorReadequado is not set', () => {
+    const rubricas = [{ valorAprovado: 800 }]
+    expect(calculateRubricasTotal(rubricas)).toBeCloseTo(800)
+  })
+
+  it('handles a mix: some rubricas with valorReadequado, some without', () => {
+    const rubricas = [
+      { valorAprovado: 1000, valorReadequado: 1200 },
+      { valorAprovado: 500 },
+      { valorAprovado: 300, valorReadequado: 400 },
+    ]
+    // 1200 + 500 + 400 = 2100
+    expect(calculateRubricasTotal(rubricas)).toBeCloseTo(2100)
+  })
+
+  it('treats valorReadequado: null as absent and uses valorAprovado', () => {
+    const rubricas = [{ valorAprovado: 700, valorReadequado: null }]
+    expect(calculateRubricasTotal(rubricas)).toBeCloseTo(700)
   })
 })

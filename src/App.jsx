@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
 import Navbar from "./components/Navbar/Navbar"
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute"
 import Users from "./pages/Users/Users"
@@ -10,12 +11,9 @@ import Pagamentos from "./pages/Pagamentos/Pagamentos"
 import Login from "./pages/Login/Login"
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
- 
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
+
 import './App.css'
-import ProjectsList from './pages/Projects/ProjectsList'
-import Project from './pages/Projects/Project'
-import Relatorios from './pages/Relatorios/Relatorios'
-import RelatorioDetalhado from './pages/Relatorios/RelatorioDetalhado/RelatorioDetalhado'
 import ConsultaSimples from './pages/ConsultaSimples/ConsultaSimples'
 import CategoryRoute from './components/CategoryRoute/CategoryRoute'
 import {
@@ -24,6 +22,21 @@ import {
   CATEGORIA_FINANCEIRO,
   CATEGORIA_ADMINISTRADOR,
 } from './constants/userCategories'
+
+// Rotas com bibliotecas pesadas carregadas sob demanda (xlsx, jsPDF)
+const ProjectsList      = lazy(() => import('./pages/Projects/ProjectsList'))
+const Project           = lazy(() => import('./pages/Projects/Project'))
+const Relatorios        = lazy(() => import('./pages/Relatorios/Relatorios'))
+const RelatorioDetalhado = lazy(() => import('./pages/Relatorios/RelatorioDetalhado/RelatorioDetalhado'))
+
+const PageLoader = () => (
+  <div style={{
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    height: '60vh', fontSize: '0.95rem', color: '#6b7280',
+  }}>
+    Carregando...
+  </div>
+)
  
 const ROUTES_WITHOUT_NAVBAR = ['/login']
  
@@ -60,107 +73,109 @@ function AppLayout() {
       )}
       {!hideNavbar && <Navbar />}
       <main className={hideNavbar ? "app-main app-main--full" : "app-main"}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/consulta-simples"
-            element={
-              <CategoryRoute allow={[CATEGORIA_CONSULTA, CATEGORIA_SIMPLIFICADO]}>
-                <ConsultaSimples />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
-                <Users />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/proponentes"
-            element={
-              <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
-                <Proponentes />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/fornecedores"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <Fornecedores />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/contas-diretas"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <ContasDiretas />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/contas-diretas/:id"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <ContaDireta />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/pagamentos"
-            element={
-              <CategoryRoute allow={[CATEGORIA_SIMPLIFICADO, CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <Pagamentos />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/projetos"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <ProjectsList />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/projetos/:id"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <Project />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/relatorios"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <Relatorios />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/relatorios/detalhado"
-            element={
-              <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
-                <RelatorioDetalhado />
-              </CategoryRoute>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              (categoria === CATEGORIA_CONSULTA || categoria === CATEGORIA_SIMPLIFICADO) ? (
-                <Navigate to="/consulta-simples" replace />
-              ) : (
-                <Navigate to="/projetos" replace />
-              )
-            }
-          />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/consulta-simples"
+              element={
+                <CategoryRoute allow={[CATEGORIA_CONSULTA, CATEGORIA_SIMPLIFICADO]}>
+                  <ConsultaSimples />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/users"
+              element={
+                <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
+                  <Users />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/proponentes"
+              element={
+                <CategoryRoute allow={[CATEGORIA_ADMINISTRADOR]}>
+                  <Proponentes />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/fornecedores"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <Fornecedores />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/contas-diretas"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <ContasDiretas />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/contas-diretas/:id"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <ContaDireta />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/pagamentos"
+              element={
+                <CategoryRoute allow={[CATEGORIA_SIMPLIFICADO, CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <Pagamentos />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/projetos"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <ProjectsList />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/projetos/:id"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <Project />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/relatorios"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <Relatorios />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/relatorios/detalhado"
+              element={
+                <CategoryRoute allow={[CATEGORIA_FINANCEIRO, CATEGORIA_ADMINISTRADOR]}>
+                  <RelatorioDetalhado />
+                </CategoryRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                (categoria === CATEGORIA_CONSULTA || categoria === CATEGORIA_SIMPLIFICADO) ? (
+                  <Navigate to="/consulta-simples" replace />
+                ) : (
+                  <Navigate to="/projetos" replace />
+                )
+              }
+            />
+          </Routes>
+        </Suspense>
       </main>
     </div>
   );
@@ -168,11 +183,13 @@ function AppLayout() {
  
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <AppLayout />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <AppLayout />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
  

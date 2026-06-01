@@ -150,6 +150,12 @@
     font-size: 0.875rem;
 }
 
+.form-empty-warning--error {
+    background-color: #fde8e8;
+    border-color: #e53e3e;
+    color: #c53030;
+}
+
 .form-empty-neutral {
     padding: 1rem;
     background-color: #f0f0f0;

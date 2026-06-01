@@ -78,8 +78,9 @@ function RelatorioDetalhado() {
         'PRONAC',
         'Rubrica',
         'CNPJ/CPF Fornecedor',
-        'Nº NF',
         'Data Emissão NF',
+        'Nº NF',
+        // coluna 'NF' omitida intencionalmente — links não funcionam em PDF
         'Data Pagamento',
         'Nº Pagamento',
         'Valor Pago',
@@ -89,8 +90,8 @@ function RelatorioDetalhado() {
         row.pronac,
         row.rubrica,
         row.documentoFornecedor,
-        row.numeroNF,
         row.dataEmissaoNF,
+        row.numeroNF,
         row.dataPagamento,
         row.numeroPagamento,
         row.valorPago !== '-' ? formatCurrencyBRLReport(row.valorPago) : '-',
@@ -225,12 +226,12 @@ function RelatorioDetalhado() {
                     <th>PRONAC</th>
                     <th>Rubrica</th>
                     <th>CNPJ/CPF Fornecedor</th>
-                    <th>Nº NF</th>
                     <th>Data Emissão NF</th>
+                    <th>Nº NF</th>
+                    <th>NF</th>
                     <th>Data Pagamento</th>
                     <th>Nº Pagamento</th>
                     <th>Valor Pago</th>
-                    <th>NF</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -239,15 +240,8 @@ function RelatorioDetalhado() {
                       <td>{row.pronac}</td>
                       <td>{row.rubrica}</td>
                       <td>{row.documentoFornecedor}</td>
-                      <td>{row.numeroNF}</td>
                       <td>{row.dataEmissaoNF}</td>
-                      <td>{row.dataPagamento}</td>
-                      <td>{row.numeroPagamento}</td>
-                      <td>
-                        {row.valorPago !== '-'
-                          ? formatCurrencyBRLReport(row.valorPago)
-                          : '-'}
-                      </td>
+                      <td>{row.numeroNF}</td>
                       <td>
                         {row.notaFiscalUrl ? (
                           <a
@@ -263,6 +257,13 @@ function RelatorioDetalhado() {
                         ) : (
                           <span className="rel-det-nf-none">—</span>
                         )}
+                      </td>
+                      <td>{row.dataPagamento}</td>
+                      <td>{row.numeroPagamento}</td>
+                      <td>
+                        {row.valorPago !== '-'
+                          ? formatCurrencyBRLReport(row.valorPago)
+                          : '-'}
                       </td>
                     </tr>
                   ))}

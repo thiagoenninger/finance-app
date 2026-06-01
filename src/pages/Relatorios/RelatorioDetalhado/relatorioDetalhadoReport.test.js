@@ -47,9 +47,8 @@ describe('generateRelatorioDetalhadoRows — edge cases', () => {
   })
 
   it('returns [] when no pagamentos match the PRONAC', async () => {
-    getDocs.mockResolvedValueOnce(makeSnap([
-      { id: 'p1', data: { pronac: 'OTHER123', rubricaNome: 'Rubrica A' } },
-    ]))
+    // Server-side where() filter returns empty snapshot — no client-side filtering needed
+    getDocs.mockResolvedValueOnce(makeSnap([]))
     const rows = await generateRelatorioDetalhadoRows({ db: mockDb, filterPronac: 'ABC999' })
     expect(rows).toEqual([])
   })
